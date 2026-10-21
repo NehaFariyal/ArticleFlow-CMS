@@ -5,9 +5,14 @@ const {
   getArticles,
   getArticleById,
   getRecommendedArticles,
+  getForYouRecommendations,
+  recordArticleRead,
   updateArticle,
   submitArticle,
-
+  approveArticle,
+  rejectArticle,
+  requestChanges,
+  publishArticle,
   getMyArticles,
   getMyArticleById,
   getPublishedArticlesByAuthor,
@@ -16,10 +21,6 @@ const {
   deleteArticle,
   reviewArticle,
   getAllArticlesForAdmin,
-  approveArticle,
-  rejectArticle,
-  requestChanges,
-  publishArticle,
 } = require('../controllers/articleController');
 
 const {
@@ -165,6 +166,21 @@ router.patch(
 // =====================================================
 
 // Recommended articles
+// Personalized recommendations and reading history
+router.get(
+  '/recommendations/for-you',
+  authenticateUser,
+  getForYouRecommendations
+);
+
+router.post(
+  '/:id/read',
+  authenticateUser,
+  recordArticleRead
+);
+
+// Existing related-article recommendations
+router.get('/:id/recommendations', optionalAuth, getRecommendedArticles);
 router.get('/:id/recommendations', optionalAuth, getRecommendedArticles);
 
 router.get('/:id', optionalAuth, getArticleById);

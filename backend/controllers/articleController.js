@@ -879,6 +879,204 @@ const getAllArticlesForAdmin = async (req, res) => {
   }
 };
 
+
+/* Record a logged-in user's reading history */
+const recordArticleRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let article = null;
+
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({
+          success: false,
+          message: 'Article not found.',
+        });
+      }
+
+      article = await Article.findById(id);
+    } else {
+      const articleStore = require('../models/articleStore');
+      article = (articleStore.inMemoryArticles || []).find(
+        (item) => String(item._id || item.id) === String(id)
+      );
+    }
+
+    if (!article || article.status !== 'published') {
+      return res.status(404).json({
+        success: false,
+        message: 'Published article not found.',
+      });
+    }
+
+    const userStore = require('../models/userStore');
+    const history = await userStore.recordArticleRead(
+      getUserId(req),
+      article
+    );
+
+    if (!history) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Reading history updated.',
+      readingHistory: history,
+    });
+  } catch (error) {
+    console.error('Record article read error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to record reading history.',
+    });
+  }
+};
+
+
+/* Get personalized For You recommendations */
+const getForYouRecommendations = async (req, res) => {
+  try {
+    const userStore = require('../models/userStore');
+    const user = await userStore.findById(getUserId(req));
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    const history = Array.isArray(user.readingHistory)
+      ? user.readingHistory
+      : [];
+
+    const readIds = new Set(
+      history.map((item) => String(item.articleId))
+    );
+
+    let articles = [];
+
+    if (mongoose.connection && mongoose.connection.readyState === 1) {
+      articles = await Article.find({ status: 'published' })
+        .populate('author', 'name email role avatar')
+        .lean();
+    } else {
+      const articleStore = require('../models/articleStore');
+      articles = (articleStore.inMemoryArticles || []).filter(
+        (article) => article.status === 'published'
+      );
+    }
+
+    const categoryCounts = {};
+    const tagCounts = {};
+
+    history.forEach((item) => {
+      if (item.category) {
+        categoryCounts[item.category] =
+          (categoryCounts[item.category] || 0) + 1;
+      }
+
+      (Array.isArray(item.tags) ? item.tags : []).forEach((tag) => {
+        const normalizedTag = String(tag).toLowerCase().trim();
+
+        if (normalizedTag) {
+          tagCounts[normalizedTag] =
+            (tagCounts[normalizedTag] || 0) + 1;
+        }
+      });
+    });
+
+    const recommendations = articles
+      .filter((article) => {
+        const articleId = String(article._id || article.id);
+
+        return (
+          article.status === 'published' &&
+          !readIds.has(articleId)
+        );
+      })
+      .map((article) => {
+        const category = article.category || 'Other';
+
+        const categoryScore = (categoryCounts[category] || 0) * 3;
+
+        const matchingTags = (
+          Array.isArray(article.tags) ? article.tags : []
+        ).filter((tag) =>
+          Object.prototype.hasOwnProperty.call(
+            tagCounts,
+            String(tag).toLowerCase().trim()
+          )
+        );
+
+        const tagScore = matchingTags.reduce((total, tag) => {
+          return (
+            total +
+            (tagCounts[String(tag).toLowerCase().trim()] || 0) * 2
+          );
+        }, 0);
+
+        const score = categoryScore + tagScore;
+
+        let recommendationReason;
+
+        if (categoryScore > 0 && tagScore > 0) {
+          recommendationReason =
+            `Because you read ${category} articles and explored similar tags`;
+        } else if (categoryScore > 0) {
+          recommendationReason = `Because you read ${category} articles`;
+        } else if (tagScore > 0) {
+          recommendationReason = 'Matches tags from articles you have read';
+        } else if (article.views > 0 || article.likes > 0) {
+          recommendationReason = 'Popular with readers';
+        } else {
+          recommendationReason = 'Discover something new';
+        }
+
+        return {
+          ...article,
+          _id: article._id || article.id,
+          recommendationScore: score,
+          recommendationReason,
+        };
+      })
+      .sort((a, b) => {
+        if (b.recommendationScore !== a.recommendationScore) {
+          return b.recommendationScore - a.recommendationScore;
+        }
+
+        const engagementA = (a.views || 0) + (a.likes || 0);
+        const engagementB = (b.views || 0) + (b.likes || 0);
+
+        if (engagementB !== engagementA) {
+          return engagementB - engagementA;
+        }
+
+        return (
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
+        );
+      })
+      .slice(0, 10);
+
+    return res.status(200).json({
+      success: true,
+      count: recommendations.length,
+      recommendations,
+    });
+  } catch (error) {
+    console.error('For You recommendations error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch personalized recommendations.',
+    });
+  }
+};
+
 // Get recommended articles related by category or tags
 const getRecommendedArticles = async (req, res) => {
   try {
@@ -948,6 +1146,8 @@ module.exports = {
   getArticles,
   getArticleById,
   getRecommendedArticles,
+  getForYouRecommendations,
+  recordArticleRead,
   updateArticle,
   submitArticle,
   approveArticle,

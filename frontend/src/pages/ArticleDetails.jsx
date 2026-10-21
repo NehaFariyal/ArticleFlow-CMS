@@ -37,6 +37,8 @@ const ArticleDetails = () => {
 
   const [quiz, setQuiz] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [forYouArticles, setForYouArticles] = useState([]);
+  const [forYouLoading, setForYouLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [likes, setLikes] = useState(0);
@@ -565,6 +567,41 @@ const ArticleDetails = () => {
         articleAPI
           .viewArticle(id)
           .catch(() => {});
+          // Save reading history and load personalized recommendations
+        if (isAuthenticated) {
+          setForYouLoading(true);
+
+          try {
+            // Save the current article before requesting recommendations.
+            try {
+              await articleAPI.recordArticleRead(id);
+            } catch (err) {
+              console.error('Reading history error:', err);
+            }
+
+            const recRes =
+              await articleAPI.getForYouRecommendations();
+
+            if (recRes.data?.success) {
+              setForYouArticles(
+                (recRes.data.recommendations || []).filter(
+                  (item) =>
+                    String(item._id || item.id) !== String(id)
+                )
+              );
+            }
+          } catch (err) {
+            console.error(
+              'For You recommendations error:',
+              err
+            );
+          } finally {
+            setForYouLoading(false);
+          }
+        } else {
+          setForYouArticles([]);
+        }
+
 
         // Fetch Recommendations
         try {
@@ -1267,6 +1304,70 @@ const ArticleDetails = () => {
 
           </div>
         </section>
+
+
+        {/* Personalized For You Section */}
+        {isAuthenticated && (
+          <section className="space-y-4 pt-6">
+            <h3 className="font-serif text-xl font-bold text-stone-900">
+              For You
+            </h3>
+
+            <p className="text-sm text-stone-600">
+              Stories selected based on your reading activity.
+            </p>
+
+            {forYouLoading && (
+              <p className="text-sm text-stone-500">
+                Finding stories for you...
+              </p>
+            )}
+
+            {!forYouLoading && forYouArticles.length === 0 && (
+              <p className="text-sm text-stone-500">
+                Read a few articles to get personalized recommendations.
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {forYouArticles.slice(0, 3).map((rec) => (
+                <div
+                  key={rec._id || rec.id}
+                  className="bg-white border border-[#EDE8DF] rounded-3xl p-5 shadow-xs flex flex-col justify-between space-y-3 hover:border-stone-400 transition"
+                >
+                  <div className="space-y-2">
+                    <span className="px-2.5 py-0.5 bg-[#FAF7F2] border border-[#EDE8DF] rounded-full font-bold text-[10px] text-stone-700 uppercase tracking-wider">
+                      {rec.category || 'General'}
+                    </span>
+
+                    <h4 className="font-serif font-bold text-stone-900 text-sm leading-snug line-clamp-2 hover:text-[#1A382B]">
+                      <Link to={`/browse/${rec._id || rec.id}`}>
+                        {rec.title}
+                      </Link>
+                    </h4>
+
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      <span className="font-bold">Why recommended: </span>
+                      {rec.recommendationReason ||
+                        'Selected for you based on available article information.'}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#F5F2EB] flex items-center justify-between text-[11px] text-stone-500">
+                    <span>{rec.readingTime || 5} min read</span>
+
+                    <Link
+                      to={`/browse/${rec._id || rec.id}`}
+                      className="text-[#1A382B] font-bold hover:underline"
+                    >
+                      Read article →
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Related Articles Section */}
         {relatedArticles.length >

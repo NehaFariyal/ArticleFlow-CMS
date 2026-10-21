@@ -189,6 +189,98 @@ const userStore = {
     };
   },
 
+  async recordArticleRead(userId, article) {
+    const articleId = String(article._id || article.id);
+    const category = article.category || 'Other';
+    const tags = Array.isArray(article.tags) ? article.tags : [];
+    const viewedAt = new Date();
+
+    // MongoDB storage
+    if (isDBConnected()) {
+      try {
+        const user = await User.findById(userId);
+
+        if (!user) return null;
+
+        if (!Array.isArray(user.readingHistory)) {
+          user.readingHistory = [];
+        }
+
+        const existing = user.readingHistory.find(
+          (item) => item.articleId === articleId
+        );
+
+        if (existing) {
+          existing.category = category;
+          existing.tags = tags;
+          existing.viewedAt = viewedAt;
+          existing.viewCount = (existing.viewCount || 1) + 1;
+        } else {
+          user.readingHistory.push({
+            articleId,
+            category,
+            tags,
+            viewedAt,
+            viewCount: 1,
+          });
+        }
+
+        // Keep the most recent 100 distinct articles.
+        user.readingHistory.sort(
+          (a, b) => new Date(b.viewedAt) - new Date(a.viewedAt)
+        );
+        user.readingHistory = user.readingHistory.slice(0, 100);
+
+        await user.save();
+        return user.readingHistory;
+      } catch (error) {
+        console.error('Failed to save MongoDB reading history:', error);
+        throw error;
+      }
+    }
+
+    // In-memory fallback storage
+    await initMemoryStore();
+
+    const user = inMemoryUsers.find(
+      (item) =>
+        String(item.id || item._id) === String(userId)
+    );
+
+    if (!user) return null;
+
+    if (!Array.isArray(user.readingHistory)) {
+      user.readingHistory = [];
+    }
+
+    const existing = user.readingHistory.find(
+      (item) => item.articleId === articleId
+    );
+
+    if (existing) {
+      existing.category = category;
+      existing.tags = tags;
+      existing.viewedAt = viewedAt;
+      existing.viewCount = (existing.viewCount || 1) + 1;
+    } else {
+      user.readingHistory.push({
+        articleId,
+        category,
+        tags,
+        viewedAt,
+        viewCount: 1,
+      });
+    }
+
+    user.readingHistory.sort(
+      (a, b) => new Date(b.viewedAt) - new Date(a.viewedAt)
+    );
+    user.readingHistory = user.readingHistory.slice(0, 100);
+    user.updatedAt = viewedAt;
+
+    return user.readingHistory;
+  },
+
   async updateUser(id, updateData) {
     if (isDBConnected()) {
       try {

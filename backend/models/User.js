@@ -44,6 +44,31 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    readingHistory: [
+      {
+        articleId: {
+          type: String,
+          required: true,
+        },
+        category: {
+          type: String,
+          default: 'Other',
+        },
+        tags: {
+          type: [String],
+          default: [],
+        },
+        viewedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        viewCount: {
+          type: Number,
+          default: 1,
+          min: 1,
+        },
+      },
+    ],
     // Phase 3: User Trust & Reputation metrics (Sadanand Module)
     trustScore: {
       type: Number,

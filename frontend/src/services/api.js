@@ -195,6 +195,13 @@ export const articleAPI = {
   // Increment article views
   viewArticle: (id) =>
     API.patch(`/articles/${id}/view`),
+    // Record reading history for logged-in users
+  recordArticleRead: (id) =>
+    API.post(`/articles/${id}/read`),
+
+  // Get personalized For You recommendations
+  getForYouRecommendations: () =>
+    API.get('/articles/recommendations/for-you'),
 
   // Admin review
   reviewArticle: (id, data) =>
