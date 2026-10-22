@@ -23,6 +23,10 @@ import {
   MessageSquare,
   ShieldAlert,
   AlertTriangle,
+  Layers,
+  ArrowRight,
+  Shield,
+  Activity,
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -70,29 +74,25 @@ const Navbar = () => {
       name: 'Priya Mehta',
       email: 'priya.mehta@lumen.com',
       role: 'Author',
-      badge:
-        'bg-emerald-50 text-emerald-800 border-emerald-200',
+      badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
     },
     {
       name: 'Thomas Okeke',
       email: 'author@lumen.com',
       role: 'Author',
-      badge:
-        'bg-emerald-50 text-emerald-800 border-emerald-200',
+      badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
     },
     {
       name: 'Amara Silva',
       email: 'admin@lumen.com',
       role: 'Admin',
-      badge:
-        'bg-purple-50 text-purple-800 border-purple-200',
+      badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
     },
     {
       name: 'Lena Kaufmann',
       email: 'reader@lumen.com',
       role: 'Reader',
-      badge:
-        'bg-stone-100 text-stone-700 border-stone-200',
+      badge: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20',
     },
   ];
 
@@ -106,11 +106,7 @@ const Navbar = () => {
   const fetchNotifications = async () => {
     try {
       const response = await notificationAPI.getNotifications();
-
-      if (
-        response.data?.success &&
-        response.data?.notifications
-      ) {
+      if (response.data?.success && response.data?.notifications) {
         setNotifications(response.data.notifications);
       }
     } catch (err) {
@@ -121,7 +117,6 @@ const Navbar = () => {
   const handleMarkAllRead = async () => {
     try {
       await notificationAPI.markAllAsRead();
-
       setNotifications((prev) =>
         prev.map((n) => ({
           ...n,
@@ -137,7 +132,6 @@ const Navbar = () => {
   const handleMarkSingleRead = async (id) => {
     try {
       await notificationAPI.markAsRead(id);
-
       setNotifications((prev) =>
         prev.map((n) =>
           (n._id || n.id) === id
@@ -185,16 +179,8 @@ const Navbar = () => {
       }
     };
 
-    document.addEventListener(
-      'mousedown',
-      handleClickOutside
-    );
-
-    return () =>
-      document.removeEventListener(
-        'mousedown',
-        handleClickOutside
-      );
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Close menus when route changes
@@ -212,199 +198,298 @@ const Navbar = () => {
 
   const getInitials = (name) => {
     if (!name) return 'U';
-
     const parts = name.trim().split(' ');
-
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
-
     return name.slice(0, 2).toUpperCase();
   };
 
   // Active navigation states
   const isHomeActive = location.pathname === '/';
-  const isBrowseActive =
-    location.pathname.startsWith('/browse');
-  const isDiscussionActive =
-    location.pathname.startsWith('/discussions');
-  const isChatActive =
-    location.pathname.startsWith('/chat');
-  const isWriteActive =
-    location.pathname.startsWith('/write');
-  const isQuizBuilderActive =
-    location.pathname.startsWith('/quiz-builder');
-  const isAdminActive =
-    location.pathname.startsWith('/admin');
-  const isProfileActive =
-    location.pathname === '/profile';
+  const isBrowseActive = location.pathname.startsWith('/browse');
+  const isDiscussionActive = location.pathname.startsWith('/discussions');
+  const isChatActive = location.pathname.startsWith('/chat');
+  const isWriteActive = location.pathname.startsWith('/write');
+  const isQuizBuilderActive = location.pathname.startsWith('/quiz-builder');
+  const isAdminActive = location.pathname.startsWith('/admin');
+  const isProfileActive = location.pathname === '/profile';
 
-  // Support both notification data formats
-  const unreadCount = notifications.filter(
-    (n) => !n.isRead || n.unread
-  ).length;
+  const unreadCount = notifications.filter((n) => !n.isRead || n.unread).length;
 
-  const navItems = [
+  const navGroups = [
     {
-      to: '/',
-      label: 'Home',
-      icon: LayoutGrid,
-      active: isHomeActive,
+      groupTitle: 'WORKSPACE',
+      items: [
+        {
+          to: '/',
+          label: 'Home',
+          icon: LayoutGrid,
+          active: isHomeActive,
+        },
+        {
+          to: '/browse',
+          label: 'Browse',
+          icon: Search,
+          active: isBrowseActive,
+        },
+        {
+          to: '/discussions',
+          label: 'Discussions',
+          icon: MessageSquare,
+          active: isDiscussionActive,
+        },
+      ],
     },
     {
-      to: '/browse',
-      label: 'Browse',
-      icon: Search,
-      active: isBrowseActive,
+      groupTitle: 'STUDIO & INTELLIGENCE',
+      items: [
+        {
+          to: '/chat',
+          label: 'Chat',
+          icon: MessageSquare,
+          active: isChatActive,
+          show: isAuthenticated,
+        },
+        {
+          to: '/write',
+          label: 'Write',
+          icon: PenLine,
+          active: isWriteActive,
+          show: isAuthor || isAdmin,
+        },
+        {
+          to: '/quiz-builder',
+          label: 'Quizzes',
+          icon: BookOpen,
+          active: isQuizBuilderActive,
+          show: isAuthor || isAdmin,
+        },
+      ],
     },
     {
-      to: '/discussions',
-      label: 'Discussions',
-      icon: MessageSquare,
-      active: isDiscussionActive,
-    },
-    {
-      to: '/chat',
-      label: 'Chat',
-      icon: MessageSquare,
-      active: isChatActive,
-      show: isAuthenticated,
-    },
-    {
-      to: '/write',
-      label: 'Write',
-      icon: PenLine,
-      active: isWriteActive,
-      show: isAuthor || isAdmin,
-    },
-    {
-      to: '/quiz-builder',
-      label: 'Quizzes',
-      icon: BookOpen,
-      active: isQuizBuilderActive,
-      show: isAuthor || isAdmin,
-    },
-    {
-      to: '/admin',
-      label: 'Admin',
-      mobileLabel: 'Admin Center',
-      icon: ShieldCheck,
-      iconClass: 'text-emerald-700',
-      active: isAdminActive,
-      show: isAdmin,
-    },
-    {
-      to: '/profile',
-      label: 'Profile',
-      icon: User,
-      active: isProfileActive,
-      show: isAuthenticated,
+      groupTitle: 'GOVERNANCE',
+      items: [
+        {
+          to: '/admin',
+          label: 'Admin',
+          mobileLabel: 'Admin Center',
+          icon: ShieldCheck,
+          active: isAdminActive,
+          show: isAdmin,
+        },
+        {
+          to: '/profile',
+          label: 'Profile',
+          icon: User,
+          active: isProfileActive,
+          show: isAuthenticated,
+        },
+      ],
     },
   ];
 
-
   return (
-    <aside className="sticky top-0 z-50 w-full shrink-0 bg-[#FAF7F2]/95 dark:bg-[#121614]/95 backdrop-blur-md border-b border-[#EDE8DF] dark:border-[#2D3732] transition-colors md:sticky md:h-screen md:w-64 md:border-b-0 md:border-r">
-      <div className="h-full px-4 sm:px-6 md:px-4">
-        <div className="flex items-center justify-between py-3.5 md:h-full md:flex-col md:items-stretch md:justify-start md:py-5">
-
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 group"
-          >
-            <div className="w-8 h-8 rounded-lg bg-[#1A382B] flex items-center justify-center text-white shadow-xs group-hover:bg-[#11261D] transition">
-              <BookOpen className="w-4 h-4" />
+    <aside className="sticky top-0 z-50 w-full shrink-0 bg-white/95 dark:bg-[#0B0F19]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 transition-colors md:sticky md:h-screen md:w-64 md:border-b-0 md:border-r shadow-xs">
+      <div className="h-full px-3.5 sm:px-5 md:px-3 flex flex-col justify-between">
+        
+        {/* Top Header & Brand */}
+        <div className="flex items-center justify-between py-3.5 md:py-4">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+              <Layers className="w-5 h-5" />
             </div>
 
-            <span className="font-serif text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-              Lumen
-              <span className="mt-0.5 block font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400">Article studio</span>
-            </span>
+            <div className="flex flex-col">
+              <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                ArticleFlow
+              </span>
+              <div className="flex items-center gap-1.5 -mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  ENTERPRISE CMS
+                </span>
+              </div>
+            </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:mt-9 md:flex md:flex-col md:items-stretch md:gap-1.5" aria-label="Primary navigation">
-            {navItems
-              .filter(({ show }) => show !== false)
-              .map(
-                ({
-                  to,
-                  label,
-                  icon: Icon,
-                  iconClass,
-                  active,
-                }) => (
-                  <Link
-                    key={to}
-                    to={to}
-                    className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                      active
-                        ? 'bg-[#1A382B] text-white shadow-xs font-semibold'
-                        : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-[#EFECE6]/70 dark:hover:bg-[#242C28]'
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4 h-4 ${
-                        iconClass || ''
-                      }`}
-                    />
-
-                    {label}
-                  </Link>
-                )
-              )}
-          </nav>
-
-          {/* Right Section */}
-          <div className="flex items-center gap-2 md:mt-auto md:flex-col md:items-stretch md:gap-3 md:pt-8">
-
-            {/* Dark Mode */}
+          {/* Mobile Right Controls */}
+          <div className="flex items-center gap-2 md:hidden">
+            {/* Dark Mode toggle mobile */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-full text-stone-600 dark:text-stone-300 hover:bg-[#EFECE6] dark:hover:bg-[#242C28] transition md:self-start"
-              title={
-                darkMode
-                  ? 'Switch to Light Mode'
-                  : 'Switch to Dark Mode'
-              }
+              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              title="Toggle theme"
             >
-              {darkMode ? (
-                <Sun className="w-4.5 h-4.5 text-amber-400" />
-              ) : (
-                <Moon className="w-4.5 h-4.5" />
-              )}
+              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* Demo Persona Switcher */}
-            <div
-              className="relative"
-              ref={roleSwitcherRef}
+            {/* Mobile Hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label="Toggle navigation menu"
             >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex flex-col flex-1 overflow-y-auto py-3 space-y-5 pr-1">
+          {navGroups.map((group) => {
+            const visibleItems = group.items.filter(({ show }) => show !== false);
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={group.groupTitle} className="space-y-1">
+                <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 font-mono">
+                  {group.groupTitle}
+                </div>
+
+                <div className="space-y-0.5">
+                  {visibleItems.map(({ to, label, icon: Icon, active }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all group ${
+                        active
+                          ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-2xs font-bold border border-blue-200/60 dark:border-blue-800/60'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/80 dark:hover:bg-slate-800/60'
+                      }`}
+                    >
+                      {active && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-blue-600 dark:bg-blue-500 rounded-r-full" />
+                      )}
+                      <Icon
+                        className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                          active
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'
+                        }`}
+                      />
+                      <span className="truncate">{label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bottom Control Dock (Desktop) */}
+        <div className="hidden md:flex flex-col gap-2.5 pt-3 border-t border-slate-200/80 dark:border-slate-800/80 pb-2">
+          
+          {/* Action Row: Theme toggle + Demo persona + Notifications */}
+          <div className="flex items-center justify-between gap-1 px-1">
+            
+            {/* Dark Mode Button */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Notification Bell with Dropdown */}
+            <div className="relative" ref={notifDropdownRef}>
               <button
                 type="button"
-                onClick={() =>
-                  setRoleSwitcherOpen(
-                    !roleSwitcherOpen
-                  )
-                }
-                className="hidden lg:flex items-center gap-1.5 bg-[#EFECE6] dark:bg-[#242C28] hover:bg-[#E7E2D9] px-3 py-1.5 rounded-xl text-xs font-semibold text-stone-700 dark:text-stone-300 border border-[#E2DDD3] dark:border-[#2D3732] transition md:w-full md:justify-start"
+                onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
+                className="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 dark:bg-blue-500 rounded-full ring-2 ring-white dark:ring-[#0B0F19]" />
+                )}
+              </button>
+
+              {notifDropdownOpen && (
+                <div className="absolute left-full bottom-0 ml-2 w-80 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden z-50">
+                  <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/50">
+                    <span className="font-bold text-xs text-slate-900 dark:text-slate-100 uppercase tracking-wider font-mono">
+                      Notifications ({unreadCount})
+                    </span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                      >
+                        <CheckCheck className="w-3 h-3" />
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-72 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-slate-400">
+                        No notifications yet.
+                      </div>
+                    ) : (
+                      notifications.map((n) => {
+                        const notificationId = n._id || n.id;
+                        const isUnread = !n.isRead || n.unread;
+
+                        return (
+                          <div
+                            key={notificationId}
+                            onClick={() => {
+                              handleMarkSingleRead(notificationId);
+                              if (n.link) navigate(n.link);
+                            }}
+                            className={`p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition text-xs cursor-pointer ${
+                              isUnread ? 'bg-blue-50/30 dark:bg-blue-950/20' : ''
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <p className="font-bold text-slate-900 dark:text-slate-100">
+                                {n.title}
+                              </p>
+                              {isUnread && (
+                                <span className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
+                              )}
+                            </div>
+                            <p className="text-slate-600 dark:text-slate-300 mt-0.5 line-clamp-2">
+                              {n.message}
+                            </p>
+                            <span className="text-[10px] text-slate-400 mt-1 block font-mono">
+                              {n.createdAt ? new Date(n.createdAt).toLocaleDateString() : 'Just now'}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Persona Switcher Quick Button */}
+            <div className="relative flex-1" ref={roleSwitcherRef}>
+              <button
+                type="button"
+                onClick={() => setRoleSwitcherOpen(!roleSwitcherOpen)}
+                className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 transition"
                 title="Switch Demo Persona"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#D97736]" />
-                <span>Demo Switcher</span>
-                <ChevronDown className="w-3 h-3 text-stone-500" />
+                <div className="flex items-center gap-1.5 truncate">
+                  <Sparkles className="w-3 h-3 text-blue-500 shrink-0" />
+                  <span className="truncate">Persona</span>
+                </div>
+                <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
               </button>
 
               {roleSwitcherOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1C221F] border border-[#EDE8DF] dark:border-[#2D3732] rounded-2xl shadow-xl py-2 z-50 md:left-full md:right-auto md:top-0 md:mt-0 md:ml-2">
-                  <div className="px-4 py-2 border-b border-[#EDE8DF] dark:border-[#2D3732]">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
-                      Demo Persona Switcher
+                <div className="absolute left-full bottom-0 ml-2 w-72 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                      Select Demo Role
                     </p>
-
-                    <p className="text-xs text-stone-500 dark:text-stone-400">
-                      Select persona to test role-specific UI
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Switch roles to test permissions & telemetry
                     </p>
                   </div>
 
@@ -412,28 +497,22 @@ const Navbar = () => {
                     {demoUsers.map((u) => (
                       <button
                         key={u.email}
-                        onClick={() =>
-                          handleSwitchPersona(u.email)
-                        }
-                        className={`w-full flex items-center justify-between px-4 py-2 text-xs hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition text-left ${
+                        onClick={() => handleSwitchPersona(u.email)}
+                        className={`w-full flex items-center justify-between px-3.5 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition text-left ${
                           user?.email === u.email
-                            ? 'bg-[#FAF7F2] dark:bg-[#242C28] font-bold'
+                            ? 'bg-blue-50/50 dark:bg-blue-950/30 font-bold'
                             : ''
                         }`}
                       >
                         <div>
-                          <span className="font-bold text-stone-900 dark:text-stone-100 block">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 block">
                             {u.name}
                           </span>
-
-                          <span className="text-[10px] text-stone-400 font-mono">
+                          <span className="text-[10px] text-slate-400 font-mono">
                             {u.email}
                           </span>
                         </div>
-
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${u.badge}`}
-                        >
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${u.badge}`}>
                           {u.role}
                         </span>
                       </button>
@@ -443,335 +522,189 @@ const Navbar = () => {
               )}
             </div>
 
-            {isAuthenticated ? (
-              <>
-                {/* User Dropdown */}
-                <div
-                  className="relative"
-                  ref={userDropdownRef}
-                >
-                  <button
-                    onClick={() =>
-                      setUserDropdownOpen(
-                        !userDropdownOpen
-                      )
-                    }
-                    className="hidden sm:flex items-center gap-2 bg-[#EFECE6] dark:bg-[#242C28] hover:bg-[#E7E2D9] px-3.5 py-1.5 rounded-full text-xs font-semibold text-stone-800 dark:text-stone-200 border border-[#E2DDD3] dark:border-[#2D3732] transition shadow-2xs md:w-full md:justify-start md:rounded-xl"
-                  >
-                    <span className="truncate max-w-[140px] sm:max-w-[180px]">
-                      {user?.name}
-                    </span>
+          </div>
 
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-stone-300/60 dark:bg-stone-700 text-stone-700 dark:text-stone-200">
+          {/* User Profile Card / Sign In */}
+          {isAuthenticated ? (
+            <div className="relative" ref={userDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="w-full flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800/80 transition text-left group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                  {getInitials(user?.name)}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                      {user?.name}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                       {user?.role}
                     </span>
-
                     <TrustBadge score={user?.trustScore ?? 50} level={user?.trustLevel} size="sm" variant="compact" />
-
-                    <ChevronDown className="w-3.5 h-3.5 text-stone-500" />
-                  </button>
-
-                  {userDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1C221F] border border-[#EDE8DF] dark:border-[#2D3732] rounded-2xl shadow-xl py-2 z-50 md:left-full md:right-auto md:top-0 md:mt-0 md:ml-2">
-
-                      <div className="px-4 py-2.5 border-b border-[#EDE8DF] dark:border-[#2D3732] mb-1">
-                        <p className="text-[11px] text-stone-500">
-                          Signed in as
-                        </p>
-
-                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">
-                          {user?.name}
-                        </p>
-
-                        <p className="text-xs text-stone-500 truncate">
-                          {user?.email}
-                        </p>
-                      </div>
-
-                      {/* Profile */}
-                      <Link
-                        to="/profile"
-                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                      >
-                        <User className="w-4 h-4 text-stone-500" />
-                        My Profile
-                      </Link>
-
-                      {/* Report Appeals */}
-                      <Link
-                        to="/my-appeals"
-                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                      >
-                        <ShieldAlert className="w-4 h-4 text-stone-500" />
-                        Report Appeals
-                      </Link>
-
-                      {/* Discussions */}
-                      <Link
-                        to="/discussions"
-                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                      >
-                        <MessageSquare className="w-4 h-4 text-stone-500" />
-                        Community Discussions
-                      </Link>
-
-                      {/* Write Article */}
-                      {(isAuthor || isAdmin) && (
-                        <Link
-                          to="/write"
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                        >
-                          <PenLine className="w-4 h-4 text-[#1A382B]" />
-                          Write New Article
-                        </Link>
-                      )}
-
-                      {/* Admin */}
-                      {isAdmin && (
-                        <>
-                          <Link
-                            to="/admin"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                          >
-                            <ShieldCheck className="w-4 h-4 text-[#1A382B]" />
-                            Admin Center
-                          </Link>
-
-                          <Link
-                            to="/admin?tab=appeals"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                          >
-                            <ShieldAlert className="w-4 h-4 text-amber-600" />
-                            Appeals Queue
-                          </Link>
-
-                          <Link
-                            to="/admin?tab=spam"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition"
-                          >
-                            <AlertTriangle className="w-4 h-4 text-rose-600" />
-                            Spam & Abuse
-                          </Link>
-                        </>
-                      )}
-
-                      <div className="my-1 border-t border-[#EDE8DF] dark:border-[#2D3732]" />
-
-                      {/* Logout */}
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Notifications */}
-                <div
-                  className="relative"
-                  ref={notifDropdownRef}
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNotifDropdownOpen(
-                        !notifDropdownOpen
-                      )
-                    }
-                    className="relative p-2 rounded-full text-stone-600 dark:text-stone-300 hover:text-stone-900 hover:bg-[#EFECE6] dark:hover:bg-[#242C28] transition md:self-start"
-                    title="Notifications"
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition" />
+              </button>
+
+              {userDropdownOpen && (
+                <div className="absolute left-full bottom-0 ml-2 w-64 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50">
+                  <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 mb-1">
+                    <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Signed in as</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{user?.name}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+                  </div>
+
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
                   >
-                    <Bell className="w-4.5 h-4.5" />
+                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    My Profile
+                  </Link>
 
-                    {unreadCount > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#D97736] rounded-full ring-2 ring-[#FAF7F2]" />
-                    )}
-                  </button>
+                  <Link
+                    to="/my-appeals"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5 text-slate-400" />
+                    Report Appeals
+                  </Link>
 
-                  {notifDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-[#1C221F] border border-[#EDE8DF] dark:border-[#2D3732] rounded-2xl shadow-xl overflow-hidden z-50 md:left-full md:right-auto md:top-0 md:mt-0 md:ml-2">
+                  <Link
+                    to="/discussions"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+                    Community Discussions
+                  </Link>
 
-                      <div className="px-4 py-3 border-b border-[#EDE8DF] dark:border-[#2D3732] flex items-center justify-between bg-[#FAF7F2] dark:bg-[#121614]">
-                        <span className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
-                          Notifications
-                        </span>
-
-                        {unreadCount > 0 && (
-                          <button
-                            onClick={handleMarkAllRead}
-                            className="text-[11px] font-semibold text-[#1A382B] dark:text-emerald-400 hover:underline flex items-center gap-1"
-                          >
-                            <CheckCheck className="w-3 h-3" />
-                            Mark all read
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="divide-y divide-[#EDE8DF] dark:divide-[#2D3732] max-h-64 overflow-y-auto">
-                        {notifications.length === 0 ? (
-                          <div className="p-4 text-center text-xs text-stone-400">
-                            No notifications yet.
-                          </div>
-                        ) : (
-                          notifications.map((n) => {
-                            const notificationId =
-                              n._id || n.id;
-
-                            const isUnread =
-                              !n.isRead || n.unread;
-
-                            return (
-                              <div
-                                key={notificationId}
-                                onClick={() => {
-                                  handleMarkSingleRead(
-                                    notificationId
-                                  );
-
-                                  if (n.link) {
-                                    navigate(n.link);
-                                  }
-                                }}
-                                className={`p-3.5 hover:bg-[#FAF7F2] dark:hover:bg-[#242C28] transition text-xs cursor-pointer ${
-                                  isUnread
-                                    ? 'bg-amber-50/40 dark:bg-amber-950/20'
-                                    : ''
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <p className="font-bold text-stone-900 dark:text-stone-100">
-                                    {n.title}
-                                  </p>
-
-                                  {isUnread && (
-                                    <span className="w-1.5 h-1.5 bg-[#D97736] rounded-full" />
-                                  )}
-                                </div>
-
-                                <p className="text-stone-600 dark:text-stone-300 mt-0.5">
-                                  {n.message}
-                                </p>
-
-                                <span className="text-[10px] text-stone-400 mt-1 block">
-                                  {n.createdAt
-                                    ? new Date(
-                                        n.createdAt
-                                      ).toLocaleDateString()
-                                    : 'Just now'}
-                                </span>
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
-                    </div>
+                  {(isAuthor || isAdmin) && (
+                    <Link
+                      to="/write"
+                      className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition"
+                    >
+                      <PenLine className="w-3.5 h-3.5" />
+                      Write New Article
+                    </Link>
                   )}
+
+                  {isAdmin && (
+                    <>
+                      <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
+                        Admin Center
+                      </Link>
+
+                      <Link
+                        to="/admin?tab=appeals"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition"
+                      >
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        Appeals Queue
+                      </Link>
+
+                      <Link
+                        to="/admin?tab=spam"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        Spam & Abuse
+                      </Link>
+                    </>
+                  )}
+
+                  <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition text-left"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    Sign Out
+                  </button>
                 </div>
-
-                {/* Avatar */}
-                <Link
-                  to="/profile"
-                  title="View Profile"
-                  className="w-8 h-8 rounded-full bg-[#1A382B] text-white flex items-center justify-center text-xs font-serif font-bold shadow-xs hover:bg-[#11261D] transition"
-                >
-                  {getInitials(user?.name)}
-                </Link>
-              </>
-            ) : (
-              <div className="hidden sm:flex items-center gap-2 md:flex-col md:items-stretch">
-                <Link
-                  to="/login"
-                  className="px-3.5 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:text-stone-950 rounded-xl hover:bg-[#EFECE6]/70 dark:hover:bg-[#242C28] transition"
-                >
-                  Sign In
-                </Link>
-
-                <Link
-                  to="/register"
-                  className="px-4 py-1.5 text-xs font-bold bg-[#1A382B] hover:bg-[#11261D] text-white rounded-xl shadow-xs transition"
-                >
-                  Get Started
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() =>
-                setMobileMenuOpen(!mobileMenuOpen)
-              }
-              className="md:hidden p-2 rounded-xl text-stone-700 dark:text-stone-300 hover:bg-[#EFECE6] dark:hover:bg-[#242C28]"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
               )}
-            </button>
-          </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <Link
+                to="/login"
+                className="w-full text-center py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="w-full text-center py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xs transition"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+
         </div>
+
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="absolute left-0 right-0 top-full md:hidden border-b border-[#EDE8DF] dark:border-[#2D3732] bg-[#FAF7F2] dark:bg-[#121614] px-4 py-3 space-y-1.5 shadow-lg">
-          {navItems
-            .filter(
-              ({ show, to }) =>
-                show !== false && to !== '/profile'
-            )
-            .map(
-              ({
-                to,
-                label,
-                mobileLabel,
-                icon: Icon,
-              }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 hover:bg-[#EFECE6] dark:hover:bg-[#242C28]"
-                >
-                  <Icon className="w-4 h-4" />
-                  {mobileLabel || label}
-                </Link>
-              )
-            )}
+        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B0F19] px-4 py-4 space-y-3 shadow-xl">
+          {navGroups.map((group) => (
+            <div key={group.groupTitle} className="space-y-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                {group.groupTitle}
+              </div>
+              {group.items
+                .filter(({ show }) => show !== false)
+                .map(({ to, label, mobileLabel, icon: Icon }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  >
+                    <Icon className="w-4 h-4 text-slate-500" />
+                    {mobileLabel || label}
+                  </Link>
+                ))}
+            </div>
+          ))}
 
           {isAuthenticated ? (
-            <>
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-900 dark:text-stone-100 hover:bg-[#EFECE6] dark:hover:bg-[#242C28]"
-              >
-                <User className="w-4 h-4" />
-                Profile ({user?.role})
-              </Link>
-
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 px-1">
+                <span>Signed in as <strong className="text-slate-900 dark:text-slate-100">{user?.name}</strong></span>
+                <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800">{user?.role}</span>
+              </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-rose-700 dark:text-rose-400 hover:bg-rose-50 text-left"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
               >
                 <LogOut className="w-4 h-4" />
                 Sign Out
               </button>
-            </>
+            </div>
           ) : (
-            <div className="pt-2 border-t border-[#EDE8DF] dark:border-[#2D3732] flex gap-2">
+            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex gap-2">
               <Link
                 to="/login"
-                className="flex-1 text-center py-2 text-xs font-semibold bg-[#EFECE6] dark:bg-[#242C28] text-stone-800 dark:text-stone-200 rounded-xl"
+                className="flex-1 text-center py-2 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl"
               >
                 Sign In
               </Link>
-
               <Link
                 to="/register"
-                className="flex-1 text-center py-2 text-xs font-bold bg-[#1A382B] text-white rounded-xl"
+                className="flex-1 text-center py-2 text-xs font-bold bg-blue-600 text-white rounded-xl"
               >
                 Get Started
               </Link>

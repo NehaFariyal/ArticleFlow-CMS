@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  BookOpen,
+  Layers,
   Mail,
   Lock,
   Eye,
@@ -10,7 +10,9 @@ import {
   ArrowRight,
   AlertCircle,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Shield,
+  Activity,
 } from 'lucide-react';
 
 const Login = () => {
@@ -76,9 +78,7 @@ const Login = () => {
           navigate('/profile', { replace: true });
         }
       } else {
-        setError(
-          res.message || 'Failed to sign in with demo credentials.'
-        );
+        setError(res.message || 'Failed to sign in with demo credentials.');
       }
     } catch (err) {
       setError('Connection error. Please try again.');
@@ -114,162 +114,110 @@ const Login = () => {
         } else if (res.user.role === 'author') {
           navigate('/profile', { replace: true });
         } else {
-          navigate(
-            from === '/login' ? '/profile' : from,
-            { replace: true }
-          );
+          navigate(from === '/login' ? '/profile' : from, { replace: true });
         }
       } else {
         setError(res.message || 'Invalid email or password.');
       }
     } catch (err) {
-      setError(
-        'Failed to connect to authentication service. Please check your connection.'
-      );
+      setError('Failed to connect to authentication service. Please check your connection.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[82vh] flex items-center justify-center px-4 py-12">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full space-y-6">
 
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="w-11 h-11 rounded-xl bg-[#1A382B] text-white flex items-center justify-center mx-auto shadow-sm">
-            <BookOpen className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center mx-auto shadow-md shadow-blue-500/20">
+            <Layers className="w-6 h-6" />
           </div>
 
-          <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">
-            Sign In to Lumen
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Sign In to ArticleFlow
           </h1>
 
-          <p className="text-xs text-stone-600">
-            Access your editorial account, articles, and community discussions
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Access enterprise content studio, analytics dashboard, and peer review queues
           </p>
         </div>
 
         {/* Quick Demo Fill Buttons Banner */}
-        <div className="bg-[#1A382B] text-white rounded-2xl p-4 shadow-xs space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
-            <Sparkles className="w-4 h-4" />
-            <span>One-Click Demo Instant Sign In</span>
+        <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 text-white p-4 shadow-md space-y-2.5">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 font-bold text-blue-400 font-mono uppercase tracking-wider text-[11px]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>One-Click Instant Persona Sign-In</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono">Test Access</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
-
             <button
               type="button"
-              onClick={() =>
-                handleQuickDemoLogin(
-                  'admin@lumen.com',
-                  'admin'
-                )
-              }
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-left transition"
+              onClick={() => handleQuickDemoLogin('admin@lumen.com', 'admin')}
+              className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-left transition flex flex-col justify-between"
             >
-              <div className="font-bold text-white">
-                Amara Silva
-              </div>
-              <div className="text-[10px] text-emerald-200">
-                Admin Account
-              </div>
+              <div className="font-bold text-white">Amara Silva</div>
+              <div className="text-[10px] font-mono text-purple-400 mt-0.5">Admin Cockpit</div>
             </button>
 
             <button
               type="button"
-              onClick={() =>
-                handleQuickDemoLogin(
-                  'priya.mehta@lumen.com',
-                  'author'
-                )
-              }
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-left transition"
+              onClick={() => handleQuickDemoLogin('priya.mehta@lumen.com', 'author')}
+              className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-left transition flex flex-col justify-between"
             >
-              <div className="font-bold text-white">
-                Priya Mehta
-              </div>
-              <div className="text-[10px] text-emerald-200">
-                Author Account
-              </div>
+              <div className="font-bold text-white">Priya Mehta</div>
+              <div className="text-[10px] font-mono text-emerald-400 mt-0.5">Author Account</div>
             </button>
 
             <button
               type="button"
-              onClick={() =>
-                handleQuickDemoLogin(
-                  'author@lumen.com',
-                  'author'
-                )
-              }
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-left transition"
+              onClick={() => handleQuickDemoLogin('author@lumen.com', 'author')}
+              className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-left transition flex flex-col justify-between"
             >
-              <div className="font-bold text-white">
-                Thomas Okeke
-              </div>
-              <div className="text-[10px] text-emerald-200">
-                Author Account
-              </div>
+              <div className="font-bold text-white">Thomas Okeke</div>
+              <div className="text-[10px] font-mono text-emerald-400 mt-0.5">Author Account</div>
             </button>
 
             <button
               type="button"
-              onClick={() =>
-                handleQuickDemoLogin(
-                  'reader@lumen.com',
-                  'reader'
-                )
-              }
-              className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-semibold text-left transition"
+              onClick={() => handleQuickDemoLogin('reader@lumen.com', 'reader')}
+              className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-left transition flex flex-col justify-between"
             >
-              <div className="font-bold text-white">
-                Lena Kaufmann
-              </div>
-              <div className="text-[10px] text-emerald-200">
-                Reader Account
-              </div>
+              <div className="font-bold text-white">Lena Kaufmann</div>
+              <div className="text-[10px] font-mono text-slate-300 mt-0.5">Reader Account</div>
             </button>
-
           </div>
         </div>
 
         {/* Login Form Card */}
-        <div className="bg-white border border-[#EDE8DF] rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
-
+        <div className="enterprise-card p-6 sm:p-8 space-y-5">
           {/* Success Banner */}
           {successNotice && (
-            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
-              <CheckCircle2 className="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5" />
-
-              <div className="font-medium">
-                {successNotice}
-              </div>
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800 rounded-xl text-xs flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <div className="font-medium">{successNotice}</div>
             </div>
           )}
 
           {/* Error Banner */}
           {error && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-start gap-2.5 animate-in fade-in duration-150">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-
-              <div className="font-medium">
-                {error}
-              </div>
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800 rounded-xl text-xs flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+              <div className="font-medium">{error}</div>
             </div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4"
-          >
-
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-stone-800 mb-1.5">
-                Email Address
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 font-mono uppercase tracking-wider">
+                Work Email Address
               </label>
-
               <div className="relative">
                 <input
                   type="email"
@@ -277,17 +225,16 @@ const Login = () => {
                   placeholder="name@domain.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#EFECE6] border border-transparent rounded-xl text-xs sm:text-sm text-stone-900 placeholder-[#9E988D] focus:outline-none focus:bg-white focus:border-[#1A382B] focus:ring-2 focus:ring-[#1A382B]/20 transition"
+                  className="enterprise-input w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm font-medium"
                 />
-
-                <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               </div>
             </div>
 
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold text-stone-800">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono uppercase tracking-wider">
                   Password
                 </label>
               </div>
@@ -296,31 +243,20 @@ const Login = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  placeholder="Enter your password"
+                  placeholder="Enter your account password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 bg-[#EFECE6] border border-transparent rounded-xl text-xs sm:text-sm text-stone-900 placeholder-[#9E988D] focus:outline-none focus:bg-white focus:border-[#1A382B] focus:ring-2 focus:ring-[#1A382B]/20 transition"
+                  className="enterprise-input w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm font-medium"
                 />
-
-                <Lock className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowPassword(!showPassword)
-                  }
-                  className="p-1 text-stone-400 hover:text-stone-700 absolute right-3 top-2.5"
-                  title={
-                    showPassword
-                      ? 'Hide password'
-                      : 'Show password'
-                  }
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 absolute right-3 top-2.5"
+                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -329,7 +265,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 bg-[#1A382B] hover:bg-[#11261D] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm shadow-blue-500/25 transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -338,21 +274,17 @@ const Login = () => {
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>Sign In to Platform</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="text-center text-xs text-stone-500 pt-3 border-t border-[#EDE8DF]">
-            Don't have an account yet?{' '}
-
-            <Link
-              to="/register"
-              className="text-[#1A382B] font-bold hover:underline"
-            >
-              Create an account
+          <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800">
+            Don't have an enterprise account yet?{' '}
+            <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+              Register now
             </Link>
           </div>
 
