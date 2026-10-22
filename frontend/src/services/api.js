@@ -205,6 +205,21 @@ export const articleAPI = {
     API.get('/articles/admin/all'),
 };
 
+export const discoveryAPI = {
+  // Use Vite's local API proxy in development when no API override is configured.
+  // Production continues to use the shared API base URL from VITE_API_URL.
+  getTrendingTopics: (params) =>
+    API.get('/discovery/trending-topics', {
+      params,
+      baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : API.defaults.baseURL),
+    }),
+  getPopularCategories: (params) =>
+    API.get('/discovery/popular-categories', {
+      params,
+      baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : API.defaults.baseURL),
+    }),
+};
+
 // ======================================================
 // Quiz API
 // ======================================================

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
+import DiscoverySections from '../components/DiscoverySections';
 import {
   BookOpen,
   LayoutGrid,
@@ -147,6 +149,8 @@ export const HomePage = () => {
         </div>
       </div>
 
+      <DiscoverySections />
+
       {/* Platform Pillars */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="enterprise-card enterprise-card-interactive p-7 space-y-4">
@@ -202,6 +206,7 @@ export const HomePage = () => {
  * Browse View - Modern Article Explorer
  */
 export const BrowsePage = () => {
+  const [searchParams] = useSearchParams();
   const categories = [
     'All Topics',
     'Science',
@@ -215,8 +220,9 @@ export const BrowsePage = () => {
   ];
 
   const [articles, setArticles] = React.useState([]);
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [selectedCategory, setSelectedCategory] = React.useState('All Topics');
+  const [searchQuery, setSearchQuery] = React.useState(() => searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] =
+    React.useState(() => searchParams.get('category') || 'All Topics');
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {

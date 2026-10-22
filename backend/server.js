@@ -54,6 +54,7 @@ app.get('/api/health', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const articleRoutes = require('./routes/articleRoutes');
+const discoveryRoutes = require('./routes/discoveryRoutes');
 const adminVerificationRoutes = require('./routes/adminVerificationRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const quizAttemptRoutes = require('./routes/quizAttemptRoutes');
@@ -76,6 +77,9 @@ app.use('/api/users', userRoutes);
 
 // Articles
 app.use('/api/articles', articleRoutes);
+
+// Public topic and category discovery
+app.use('/api/discovery', discoveryRoutes);
 
 // Admin Verification
 app.use('/api/admin-verification', adminVerificationRoutes);
