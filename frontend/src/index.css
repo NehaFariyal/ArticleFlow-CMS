@@ -3,93 +3,284 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-main: #f8fafc;
+    --surface-card: #ffffff;
+    --border-subtle: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+  }
+
+  html.dark {
+    --bg-main: #0b0f19;
+    --surface-card: #111827;
+    --border-subtle: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+  }
+
   body {
-    @apply bg-[#FAF7F2] text-stone-900 min-h-screen antialiased transition-colors duration-200;
-    font-family: 'DM Sans', system-ui, sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.011em;
   }
 
-  h1, h2, h3, .font-heading, .font-serif {
-    font-family: 'Fraunces', Georgia, serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    letter-spacing: -0.025em;
+    font-weight: 700;
   }
 }
 
-/* Dark Mode Overrides */
+/* =========================================================
+   ENTERPRISE AUTOMATIC TRANSFORMATION FOR LEGACY PALETTE
+   Transforms old beige/stone/muddy colors to modern slate
+   ========================================================= */
+
+/* Light mode overrides for old beige/stone tokens */
+.bg-\[\#FAF7F2\],
+.bg-\[\#FAF7F0\],
+.bg-\[\#f7f4ee\],
+.bg-\[\#faf8f3\] {
+  background-color: #f8fafc !important;
+}
+
+.bg-\[\#EFECE6\],
+.bg-\[\#f1eee7\] {
+  background-color: #f1f5f9 !important;
+}
+
+.hover\:bg-\[\#E7E2D9\]:hover,
+.hover\:bg-\[\#EFECE6\]:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.border-\[\#EDE8DF\],
+.border-\[\#F5F2EB\],
+.border-\[\#dedbd4\],
+.border-\[\#d5d0c7\],
+.border-\[\#E2DDD3\],
+.border-\[\#F2EDE4\] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Primary brand button conversion: from dark mud green to executive obsidian/cobalt */
+.bg-\[\#1A382B\],
+.bg-\[\#1d4533\],
+.bg-\[\#244d3b\] {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.hover\:bg-\[\#11261D\]:hover {
+  background-color: #020817 !important;
+}
+
+/* Stone to Slate text conversion */
+.text-stone-900,
+.text-\[\#17251d\],
+.text-\[\#172019\] {
+  color: #0f172a !important;
+}
+
+.text-stone-700,
+.text-stone-600,
+.text-stone-800 {
+  color: #334155 !important;
+}
+
+.text-stone-500,
+.text-stone-400 {
+  color: #64748b !important;
+}
+
+/* =========================================================
+   DARK MODE COMPREHENSIVE OVERRIDES
+   ========================================================= */
+
 html.dark body {
-  background-color: #121614 !important;
-  color: #E2E8F0 !important;
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
 }
 
-html.dark .bg-white {
-  background-color: #1C221F !important;
-  color: #E2E8F0 !important;
-  border-color: #2D3732 !important;
+html.dark .bg-white,
+html.dark .bg-\[\#ffffff\] {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
 }
 
 html.dark .bg-\[\#FAF7F2\],
-html.dark .bg-\[\#FAF7F0\] {
-  background-color: #121614 !important;
+html.dark .bg-\[\#FAF7F0\],
+html.dark .bg-\[\#f7f4ee\],
+html.dark .bg-\[\#faf8f3\] {
+  background-color: #0b0f19 !important;
 }
 
-html.dark .bg-\[\#EFECE6\] {
-  background-color: #242C28 !important;
-  color: #E2E8F0 !important;
+html.dark .bg-\[\#EFECE6\],
+html.dark .bg-\[\#f1eee7\] {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
 }
 
-html.dark .text-stone-900 {
-  color: #F8FAFC !important;
-}
-
-html.dark .text-stone-800,
-html.dark .text-stone-700,
-html.dark .text-stone-600 {
-  color: #CBD5E1 !important;
+html.dark .hover\:bg-\[\#E7E2D9\]:hover,
+html.dark .hover\:bg-\[\#EFECE6\]:hover,
+html.dark .hover\:bg-\[\#FAF7F2\]:hover {
+  background-color: #1e293b !important;
 }
 
 html.dark .border-\[\#EDE8DF\],
-html.dark .border-\[\#F5F2EB\] {
-  border-color: #2D3732 !important;
+html.dark .border-\[\#F5F2EB\],
+html.dark .border-\[\#dedbd4\],
+html.dark .border-\[\#d5d0c7\],
+html.dark .border-\[\#E2DDD3\],
+html.dark .border-\[\#F2EDE4\],
+html.dark .border-stone-200,
+html.dark .border-stone-300 {
+  border-color: #1e293b !important;
 }
 
-/* Custom editorial scrollbars */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+html.dark .text-stone-900,
+html.dark .text-stone-800 {
+  color: #f8fafc !important;
 }
 
-::-webkit-scrollbar-track {
-  background: #FAF7F2;
+html.dark .text-stone-700,
+html.dark .text-stone-600 {
+  color: #cbd5e1 !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #D5CEBF;
-  border-radius: 4px;
+html.dark .text-stone-500,
+html.dark .text-stone-400 {
+  color: #94a3b8 !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #B8B0A0;
+html.dark .bg-\[\#1A382B\],
+html.dark .bg-\[\#1d4533\],
+html.dark .bg-\[\#244d3b\] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
 }
 
-/* Lumen Card styling */
-.lumen-card {
-  background: #FFFFFF;
-  border: 1px solid #EDE8DF;
-  border-radius: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+html.dark .hover\:bg-\[\#11261D\]:hover {
+  background-color: #1d4ed8 !important;
 }
 
-/* Lumen Input styling */
-.lumen-input {
-  background: #EFECE6;
-  border: 1px solid transparent;
-  border-radius: 0.875rem;
-  color: #1C1917;
+/* =========================================================
+   ENTERPRISE DESIGN SYSTEM COMPONENTS & UTILITIES
+   ========================================================= */
+
+.enterprise-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.dark .enterprise-card {
+  background-color: #111827;
+  border-color: #1e293b;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.enterprise-card-interactive {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.enterprise-card-interactive:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  transform: translateY(-2px);
+}
+
+html.dark .enterprise-card-interactive:hover {
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.enterprise-input {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  color: #0f172a;
+  font-size: 0.875rem;
   transition: all 0.15s ease-in-out;
 }
 
-.lumen-input:focus {
-  background: #FFFFFF;
-  border-color: #1A382B;
+.enterprise-input:focus {
+  background-color: #ffffff;
+  border-color: #3b82f6;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(26, 56, 43, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
+
+html.dark .enterprise-input {
+  background-color: #0f172a;
+  border-color: #1e293b;
+  color: #f8fafc;
+}
+
+html.dark .enterprise-input:focus {
+  background-color: #111827;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* Custom Precision Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Subtle Shimmer for High-Tech Analytics */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glassmorphism panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+html.dark .glass-panel {
+  background: rgba(17, 24, 39, 0.85);
+  border-color: rgba(30, 41, 59, 0.8);
+}
+

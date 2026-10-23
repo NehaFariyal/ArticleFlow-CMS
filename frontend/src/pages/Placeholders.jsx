@@ -17,59 +17,135 @@ import {
   Eye,
   Clock,
   ThumbsUp,
+  TrendingUp,
+  Layers,
+  Activity,
+  Cpu,
+  ShieldAlert,
+  Compass,
 } from 'lucide-react';
 
 /**
- * Home Page View
+ * Home Page View - Enterprise Intelligence & Analytics Portal
  */
 export const HomePage = () => {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
       {/* Hero Banner */}
-      <div className="bg-white border border-[#EDE8DF] rounded-3xl p-8 sm:p-14 shadow-xs text-center space-y-6 relative overflow-hidden">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#FAF7F2] border border-[#EDE8DF] rounded-full text-xs font-semibold text-stone-700">
-          <Sparkles className="w-3.5 h-3.5 text-[#D97736]" />
-          Editorial Content & Knowledge Platform
+      <div className="relative rounded-3xl bg-gradient-to-b from-white to-slate-50 dark:from-[#111827] dark:to-[#0B0F19] border border-slate-200/80 dark:border-slate-800/80 p-8 sm:p-14 shadow-card overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/60 rounded-full text-xs font-semibold text-blue-700 dark:text-blue-300 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>Next-Generation Editorial Analytics & Content Engine</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
+            Where Enterprise Knowledge Meets Real-Time Intelligence
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-normal leading-relaxed max-w-2xl mx-auto">
+            ArticleFlow empowers content architects, researchers, and editorial review teams with 
+            deep peer verification, automated AI moderation, and interactive topic analytics.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-blue-500/20 transition flex items-center gap-2"
+                >
+                  <span>Go to My Profile ({user?.role})</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  to="/browse"
+                  className="px-6 py-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-2"
+                >
+                  <Compass className="w-4 h-4 text-blue-500" />
+                  <span>Explore Articles</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/register"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-blue-500/20 transition flex items-center gap-2"
+                >
+                  <span>Get Started</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+
+                <Link
+                  to="/login"
+                  className="px-6 py-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700 transition"
+                >
+                  Sign In
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Real-time Telemetry KPI Band */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="enterprise-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">VERIFICATION SLA</span>
+            <Activity className="w-4 h-4 text-emerald-500" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            99.8%
+          </div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            Automated & peer reviewed
+          </div>
         </div>
 
-        <h1 className="font-serif text-4xl sm:text-5xl font-bold text-stone-900 tracking-tight max-w-3xl mx-auto leading-tight">
-          Where Thoughtful Writing Meets Interactive Knowledge
-        </h1>
+        <div className="enterprise-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">TOPIC CLUSTERS</span>
+            <Layers className="w-4 h-4 text-blue-500" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            10+ Tracks
+          </div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            Science, Tech, Health & Systems
+          </div>
+        </div>
 
-        <p className="text-xs sm:text-base text-stone-600 max-w-2xl mx-auto font-normal leading-relaxed">
-          Lumen is an editorial publishing platform designed for curious
-          readers, subject matter authors, and editorial teams.
-        </p>
+        <div className="enterprise-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">AI MODERATION</span>
+            <Cpu className="w-4 h-4 text-purple-500" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            Real-Time
+          </div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            Multi-signal risk scanning
+          </div>
+        </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          {isAuthenticated ? (
-            <Link
-              to="/profile"
-              className="px-6 py-3 bg-[#1A382B] hover:bg-[#11261D] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition flex items-center gap-2"
-            >
-              <span>Go to My Profile ({user?.role})</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          ) : (
-            <>
-              <Link
-                to="/register"
-                className="px-6 py-3 bg-[#1A382B] hover:bg-[#11261D] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition flex items-center gap-2"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                to="/login"
-                className="px-6 py-3 bg-[#EFECE6] hover:bg-[#E7E2D9] text-stone-800 text-xs sm:text-sm font-semibold rounded-xl transition"
-              >
-                Sign In
-              </Link>
-            </>
-          )}
+        <div className="enterprise-card p-5 space-y-2">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">GOVERNANCE</span>
+            <ShieldCheck className="w-4 h-4 text-amber-500" />
+          </div>
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            RBAC Ready
+          </div>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+            Author, Reader & Admin Roles
+          </div>
         </div>
       </div>
 
@@ -77,48 +153,48 @@ export const HomePage = () => {
 
       {/* Platform Pillars */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white border border-[#EDE8DF] rounded-3xl p-6 shadow-xs space-y-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-[#1A382B] flex items-center justify-center font-bold">
+        <div className="enterprise-card enterprise-card-interactive p-7 space-y-4">
+          <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
             <BookOpen className="w-5 h-5" />
           </div>
 
-          <h2 className="font-serif text-lg font-bold text-stone-900">
-            In-Depth Articles
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+            Curated Research & Deep-Dives
           </h2>
 
-          <p className="text-xs text-stone-600 leading-relaxed">
-            Curated essays, technical deep-dives, and investigative science
-            journalism written by domain experts.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            In-depth engineering notes, peer-reviewed science essays, and investigative analyses
+            authored by verified domain contributors.
           </p>
         </div>
 
-        <div className="bg-white border border-[#EDE8DF] rounded-3xl p-6 shadow-xs space-y-3">
-          <div className="w-10 h-10 rounded-2xl bg-amber-50 text-[#D97736] flex items-center justify-center font-bold">
+        <div className="enterprise-card enterprise-card-interactive p-7 space-y-4">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
             <PenLine className="w-5 h-5" />
           </div>
 
-          <h2 className="font-serif text-lg font-bold text-stone-900">
-            Interactive Knowledge
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+            Interactive Knowledge Verification
           </h2>
 
-          <p className="text-xs text-stone-600 leading-relaxed">
-            Test and consolidate your understanding with article-aligned
-            quizzes and concept checkpoints.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Reinforce key takeaways through article-aligned concept checkpoints, 
+            knowledge mastery challenges, and verified trust progression.
           </p>
         </div>
 
-        <div className="bg-white border border-[#EDE8DF] rounded-3xl p-6 shadow-xs space-y-3">
-          <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold">
+        <div className="enterprise-card enterprise-card-interactive p-7 space-y-4">
+          <div className="w-11 h-11 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
             <ShieldCheck className="w-5 h-5" />
           </div>
 
-          <h2 className="font-serif text-lg font-bold text-stone-900">
-            Editorial Standards
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+            Enterprise Editorial Governance
           </h2>
 
-          <p className="text-xs text-stone-600 leading-relaxed">
-            Every submission undergoes rigorous peer review and editorial
-            moderation before publication.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Automated AI scanning, community appeals processing, and transparent editorial review
+            ensure high platform integrity at scale.
           </p>
         </div>
       </div>
@@ -127,7 +203,7 @@ export const HomePage = () => {
 };
 
 /**
- * Browse View
+ * Browse View - Modern Article Explorer
  */
 export const BrowsePage = () => {
   const [searchParams] = useSearchParams();
@@ -147,12 +223,8 @@ export const BrowsePage = () => {
   const [searchQuery, setSearchQuery] = React.useState(() => searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] =
     React.useState(() => searchParams.get('category') || 'All Topics');
-
   const [loading, setLoading] = React.useState(true);
 
-  /*
-   * Fetch articles from backend API using search & category query params
-   */
   React.useEffect(() => {
     const fetchArticles = async () => {
       try {
@@ -198,47 +270,47 @@ export const BrowsePage = () => {
 
   const filteredArticles = articles;
 
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80 pb-6">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-stone-900">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/60 rounded-full text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2">
+            <Compass className="w-3.5 h-3.5" />
+            <span>Content Intelligence Catalog</span>
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Browse Articles & Topics
           </h1>
-
-          <p className="text-xs text-stone-500 mt-1">
-            Explore essays, research notes, and curated knowledge
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Search peer-reviewed research, technological deep dives, and expert publications.
           </p>
         </div>
 
         {/* Search */}
-        <div className="relative w-full md:w-72">
+        <div className="relative w-full md:w-80">
           <input
             type="text"
-            placeholder="Search articles or topics..."
+            placeholder="Search articles, topics or keywords..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white border border-[#EDE8DF] rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#1A382B]"
+            className="enterprise-input w-full pl-10 pr-4 py-2.5"
           />
-
-          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
         </div>
       </div>
 
       {/* Category Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         {categories.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               selectedCategory === cat
-                ? 'bg-[#1A382B] text-white shadow-2xs'
-                : 'bg-white border border-[#EDE8DF] text-stone-700 hover:bg-[#EFECE6]'
+                ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                : 'enterprise-card text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             {cat}
@@ -246,66 +318,84 @@ export const BrowsePage = () => {
         ))}
       </div>
 
-      {/* Articles */}
+      {/* Articles Grid */}
       {loading ? (
-        <div className="text-center py-12 text-stone-500">
-          Loading articles...
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <div key={n} className="enterprise-card p-6 space-y-4 animate-pulse">
+              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+              <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-4/5" />
+              <div className="h-16 bg-slate-200 dark:bg-slate-800 rounded w-full" />
+              <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+            </div>
+          ))}
         </div>
       ) : filteredArticles.length === 0 ? (
-        <div className="text-center py-12 text-stone-500">
-          No articles found.
+        <div className="enterprise-card p-12 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+            <Search className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">No articles found</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            No articles matched your criteria. Try adjusting your search query or selecting a different topic.
+          </p>
+          {(searchQuery || selectedCategory !== 'All Topics') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('All Topics');
+              }}
+              className="px-4 py-2 text-xs font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-100 transition"
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((article) => (
             <Link
               key={article._id}
               to={`/browse/${article._id}`}
-              className="bg-white border border-[#EDE8DF] rounded-3xl p-6 shadow-xs space-y-3 hover:border-stone-400 transition"
+              className="enterprise-card enterprise-card-interactive p-6 flex flex-col justify-between space-y-4 group"
             >
+              <div className="space-y-3">
+                {/* Category + Views */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-[11px] text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-0.5 rounded-full border border-blue-200/60 dark:border-blue-800/60">
+                    {article.category || 'General'}
+                  </span>
 
-              {/* Category + Views */}
-              <div className="flex items-center justify-between text-xs text-stone-500">
+                  <span className="flex items-center gap-1 text-slate-400 text-[11px] font-mono">
+                    <Eye className="w-3.5 h-3.5" />
+                    {article.views || 0}
+                  </span>
+                </div>
 
-                <span className="font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  {article.category}
-                </span>
+                {/* Title */}
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                  {article.title}
+                </h3>
 
-                <span className="flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5" />
-                  {article.views || 0}
-                </span>
-
+                {/* Description */}
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3">
+                  {article.description}
+                </p>
               </div>
 
-              {/* Title */}
-              <h3 className="font-serif text-xl font-bold text-stone-900">
-                {article.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-xs text-stone-600 leading-relaxed">
-                {article.description}
-              </p>
-
-              {/* Author + Likes */}
-              <div className="pt-2 border-t border-[#F5F2EB] flex items-center justify-between text-xs text-stone-500">
-
-                <span>
-                  By {article.author?.name || 'Unknown Author'}
+              {/* Author + Likes Footer */}
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span className="font-medium truncate max-w-[150px]">
+                  {article.author?.name || 'Unknown Author'}
                 </span>
 
-                <span className="flex items-center gap-1 text-stone-700 font-medium">
-                  <ThumbsUp className="w-3.5 h-3.5 text-stone-400" />
-                  {article.likes || 0} likes
+                <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
+                  <ThumbsUp className="w-3.5 h-3.5 text-slate-400" />
+                  {article.likes || 0}
                 </span>
-
               </div>
-
             </Link>
           ))}
-
         </div>
       )}
     </div>
@@ -313,41 +403,30 @@ export const BrowsePage = () => {
 };
 
 /**
- * Write View (Article Editor)
+ * Write View (Article Editor Fallback)
  */
 export const WritePage = () => {
   const { user } = useAuth();
-
-  // Article form state
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [content, setContent] = React.useState('');
   const [category, setCategory] = React.useState('Technology');
 
-  // Loading and message state
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const [messageType, setMessageType] = React.useState('');
 
-  /**
-   * Submit article
-   */
   const handleSubmit = async () => {
-    // Validate title
     if (!title.trim()) {
       setMessageType('error');
       setMessage('Please enter an article title.');
       return;
     }
-
-    // Validate content
     if (!content.trim()) {
       setMessageType('error');
       setMessage('Please enter article content.');
       return;
     }
-
-    // Check logged-in user
     if (!user) {
       setMessageType('error');
       setMessage('Please login before submitting an article.');
@@ -359,113 +438,61 @@ export const WritePage = () => {
       setMessage('');
       setMessageType('');
 
-      /*
-       * Your AuthContext stores the JWT using:
-       *
-       * localStorage.setItem('lumen_token', newToken)
-       */
       const token = localStorage.getItem('lumen_token');
-
       if (!token) {
         setMessageType('error');
         setMessage('Authentication token not found. Please login again.');
         return;
       }
 
-      /*
-       * STEP 1:
-       * Create the article.
-       */
       const apiBase = import.meta.env.VITE_API_URL || 'https://content-management-system-2-he9n.onrender.com/api';
-      const createResponse = await fetch(
-        `${apiBase}/articles`,
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            title: title.trim(),
-            description: description.trim(),
-            content: content.trim(),
-            category,
-            tags: [],
-          }),
-        }
-      );
+      const createResponse = await fetch(`${apiBase}/articles`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim(),
+          content: content.trim(),
+          category,
+          tags: [],
+        }),
+      });
 
       const createData = await createResponse.json();
-
-      console.log('Create article response:', createData);
-
       if (!createResponse.ok) {
-        throw new Error(
-          createData.message || 'Failed to create article.'
-        );
+        throw new Error(createData.message || 'Failed to create article.');
       }
 
-      /*
-       * Get article ID.
-       */
       const articleId = createData.article?._id;
-
       if (!articleId) {
-        throw new Error(
-          'Article was created but no article ID was returned.'
-        );
+        throw new Error('Article was created but no article ID was returned.');
       }
 
-      /*
-       * STEP 2:
-       * Submit the newly created article for review.
-       */
-      const submitResponse = await fetch(
-        `${apiBase}/articles/${articleId}/submit`,
-        {
-          method: 'PATCH',
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const submitResponse = await fetch(`${apiBase}/articles/${articleId}/submit`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const submitData = await submitResponse.json();
-
-      console.log('Submit article response:', submitData);
-
       if (!submitResponse.ok) {
-        throw new Error(
-          submitData.message ||
-            'Failed to submit article for review.'
-        );
+        throw new Error(submitData.message || 'Failed to submit article for review.');
       }
 
-      /*
-       * SUCCESS
-       */
       setMessageType('success');
-      setMessage(
-        'Article submitted successfully for review!'
-      );
-
-      // Clear the form
+      setMessage('Article submitted successfully for review!');
       setTitle('');
       setDescription('');
       setContent('');
       setCategory('Technology');
-
     } catch (error) {
       console.error('Submit article error:', error);
-
       setMessageType('error');
-      setMessage(
-        error.message ||
-          'Something went wrong while submitting the article.'
-      );
+      setMessage(error.message || 'Something went wrong while submitting the article.');
     } finally {
       setLoading(false);
     }
@@ -473,86 +500,73 @@ export const WritePage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-stone-900">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
             Write New Article
           </h1>
-
-          <p className="text-xs text-stone-500">
-            Authoring as {user?.name}
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Authoring submission as <span className="font-semibold text-slate-700 dark:text-slate-300">{user?.name}</span>
           </p>
         </div>
 
-        {/* Submit Button */}
         <button
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className="px-4 py-2 bg-[#1A382B] text-white text-xs font-bold rounded-xl hover:bg-[#11261D] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 shadow-sm shadow-blue-500/20 transition disabled:opacity-50"
         >
           {loading ? 'Submitting...' : 'Submit for Review'}
         </button>
       </div>
 
-      {/* Success / Error Message */}
       {message && (
         <div
-          className={`px-4 py-3 rounded-xl text-sm border ${
+          className={`px-4 py-3 rounded-xl text-xs font-medium border ${
             messageType === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border-rose-200'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+              : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
           }`}
         >
           {message}
         </div>
       )}
 
-      {/* Article Form */}
-      <div className="bg-white border border-[#EDE8DF] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
-
-        {/* Article Title */}
+      <div className="enterprise-card p-6 sm:p-8 space-y-5">
         <div>
-          <label className="block text-xs font-bold text-stone-800 mb-1.5">
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase tracking-wider font-mono">
             Article Title
           </label>
-
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter an engaging headline..."
-            className="w-full px-4 py-3 bg-[#FAF7F2] border border-[#EDE8DF] rounded-xl font-serif text-lg text-stone-900 focus:outline-none focus:border-[#1A382B] focus:bg-white"
+            className="enterprise-input w-full px-4 py-3 text-base font-semibold"
           />
         </div>
 
-        {/* Short Excerpt */}
         <div>
-          <label className="block text-xs font-bold text-stone-800 mb-1.5">
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase tracking-wider font-mono">
             Short Excerpt
           </label>
-
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="A brief summary for previews..."
-            className="w-full px-4 py-2 bg-[#FAF7F2] border border-[#EDE8DF] rounded-xl text-xs text-stone-900 focus:outline-none focus:border-[#1A382B] focus:bg-white"
+            placeholder="A brief executive summary for cards and search indexing..."
+            className="enterprise-input w-full px-4 py-2.5"
           />
         </div>
 
-        {/* Category */}
         <div>
-          <label className="block text-xs font-bold text-stone-800 mb-1.5">
-            Category
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase tracking-wider font-mono">
+            Topic Domain
           </label>
-
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-4 py-2 bg-[#FAF7F2] border border-[#EDE8DF] rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#1A382B] focus:bg-white"
+            className="enterprise-input w-full px-4 py-2.5"
           >
             <option value="Science">Science</option>
             <option value="Technology">Technology</option>
@@ -565,67 +579,61 @@ export const WritePage = () => {
           </select>
         </div>
 
-        {/* Article Content */}
         <div>
-          <label className="block text-xs font-bold text-stone-800 mb-1.5">
-            Content (Markdown)
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase tracking-wider font-mono">
+            Content (Markdown Supported)
           </label>
-
           <textarea
-            rows={10}
+            rows={12}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your article in Markdown..."
-            className="w-full p-4 bg-[#FAF7F2] border border-[#EDE8DF] rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#1A382B] focus:bg-white resize-y"
+            placeholder="Draft your deep-dive article content here..."
+            className="enterprise-input w-full p-4 font-mono text-xs sm:text-sm leading-relaxed"
           />
         </div>
-
       </div>
     </div>
   );
 };
 
 /**
- * Admin View (Verification Center)
+ * Admin View (Verification Center Fallback)
  */
 export const AdminPage = () => {
   const { user } = useAuth();
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-stone-900">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
           Admin Verification Center
         </h1>
-
-        <p className="text-xs text-stone-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Review pending submissions and editorial workflows
         </p>
       </div>
 
-      <div className="bg-white border border-[#EDE8DF] rounded-3xl p-6 shadow-xs space-y-4">
-        <h2 className="font-serif text-lg font-bold text-stone-900">
+      <div className="enterprise-card p-6 space-y-4">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">
           Pending Review Queue
         </h2>
 
-        <div className="divide-y divide-[#F5F2EB] text-xs">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
           <div className="py-3.5 flex items-center justify-between gap-4">
             <div>
-              <span className="font-bold text-stone-900 block">
+              <span className="font-bold text-slate-900 dark:text-slate-100 block">
                 The Future of Brain-Computer Interfaces
               </span>
-
-              <span className="text-stone-500">
-                Submitted by Priya Mehta ΓÇó 5 min read
+              <span className="text-slate-500 dark:text-slate-400">
+                Submitted by Priya Mehta • 5 min read
               </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl font-semibold hover:bg-emerald-100 transition">
+              <button className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl font-semibold hover:bg-emerald-100 transition">
                 Approve
               </button>
-
-              <button className="px-3 py-1.5 bg-rose-50 text-rose-800 border border-rose-200 rounded-xl font-semibold hover:bg-rose-100 transition">
+              <button className="px-3.5 py-1.5 bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl font-semibold hover:bg-rose-100 transition">
                 Request Changes
               </button>
             </div>
