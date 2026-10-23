@@ -27,6 +27,7 @@ const {
   authorizeRole,
   optionalAuth,
 } = require('../middleware/auth');
+const requireDatabase = require('../middleware/requireDatabase');
 
 const router = express.Router();
 
@@ -46,6 +47,7 @@ router.get(
 // Increment article views
 router.patch(
   '/:id/view',
+  requireDatabase,
   incrementViews
 );
 
@@ -72,6 +74,7 @@ router.get(
 router.patch(
   '/:id/like',
   authenticateUser,
+  requireDatabase,
   likeArticle
 );
 
@@ -80,6 +83,7 @@ router.post(
   '/',
   authenticateUser,
   authorizeRole('author', 'admin'),
+  requireDatabase,
   createArticle
 );
 
@@ -88,6 +92,7 @@ router.patch(
   '/:id/submit',
   authenticateUser,
   authorizeRole('author', 'admin'),
+  requireDatabase,
   submitArticle
 );
 
@@ -96,6 +101,7 @@ router.put(
   '/:id',
   authenticateUser,
   authorizeRole('author', 'admin'),
+  requireDatabase,
   updateArticle
 );
 
@@ -104,6 +110,7 @@ router.delete(
   '/:id',
   authenticateUser,
   authorizeRole('author', 'admin'),
+  requireDatabase,
   deleteArticle
 );
 
@@ -124,6 +131,7 @@ router.patch(
   '/:id/approve',
   authenticateUser,
   authorizeRole('admin'),
+  requireDatabase,
   approveArticle
 );
 
@@ -132,6 +140,7 @@ router.patch(
   '/:id/reject',
   authenticateUser,
   authorizeRole('admin'),
+  requireDatabase,
   rejectArticle
 );
 
@@ -140,6 +149,7 @@ router.patch(
   '/:id/request-changes',
   authenticateUser,
   authorizeRole('admin'),
+  requireDatabase,
   requestChanges
 );
 
@@ -148,6 +158,7 @@ router.patch(
   '/:id/publish',
   authenticateUser,
   authorizeRole('admin'),
+  requireDatabase,
   publishArticle
 );
 
@@ -156,6 +167,7 @@ router.patch(
   '/:id/review',
   authenticateUser,
   authorizeRole('admin'),
+  requireDatabase,
   reviewArticle
 );
 

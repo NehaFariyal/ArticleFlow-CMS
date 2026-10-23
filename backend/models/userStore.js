@@ -161,8 +161,24 @@ const userStore = {
         const newUser = await User.create({ name, email, password, role, bio });
         return newUser;
       } catch (err) {
-        console.warn('[DB Fallback] Mongoose create failed, using in-memory store:', err.message);
+        console.error('[Database] User creation failed; refusing an in-memory fallback:', err.message);
+        throw err;
       }
+    }
+
+    if (
+      process.env.NODE_ENV !== 'test' &&
+      (process.env.MONGODB_URI || process.env.MONGO_URI)
+    ) {
+      const error = new Error('MongoDB is configured but not connected. Registration was stopped to protect account data.');
+      error.code = 'DATABASE_UNAVAILABLE';
+      throw error;
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      const error = new Error('MongoDB must be configured before accounts can be registered.');
+      error.code = 'DATABASE_UNAVAILABLE';
+      throw error;
     }
 
     await initMemoryStore();

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base API instance
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://content-management-system-2-he9n.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'https://content-management-system-2-he9n.onrender.com/api'),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -335,6 +335,12 @@ export const trustAPI = {
 export const contentQualityAPI = {
   analyze: (data) =>
     API.post('/content-quality/analyze', data),
+};
+
+// AI Writing API
+export const aiWritingAPI = {
+  assist: (data) => API.post('/ai-writing/assist', data, { timeout: 60000 }),
+  summarize: (data) => API.post('/ai-writing/summarize', data, { timeout: 60000 }),
 };
 
 // AI Content Moderation API

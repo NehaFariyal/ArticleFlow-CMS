@@ -61,7 +61,7 @@ const Register = () => {
         // Navigate back to login page with prefilled credentials & success banner
         navigate('/login', {
           state: {
-            successMessage: `Account created successfully for ${name.trim()}! Please sign in with your password.`,
+            successMessage: `${res.message || `Account created successfully for ${name.trim()}`} Please sign in with your password.`,
             registeredEmail: email.trim(),
             registeredRole: role,
           },
@@ -71,7 +71,12 @@ const Register = () => {
         setError(res.message || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      setError('Network or server error during registration. Please try again.');
+      console.error('[Registration Page Error]:', err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Unable to reach the registration service. Check your connection and try again.'
+      );
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 const dns = require('dns');
+const crypto = require('crypto');
 
 // Force IPv4 DNS — prevents MongoDB Atlas NAT64 IPv6 connection drops
 dns.setDefaultResultOrder('ipv4first');
@@ -9,19 +10,26 @@ const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/db');
 const contentQualityRoutes = require('./routes/contentQualityRoutes');
+const aiWritingRoutes = require('./routes/aiWritingRoutes');
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config();
 
-const app = express();
-
-// Connect to MongoDB
-connectDB().catch((err) => {
-  console.warn(
-    '[Lumen Server] MongoDB connection deferred or offline. Running Express server with in-memory fallback.'
+if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'production') {
+  process.env.JWT_SECRET = crypto.randomBytes(32).toString('hex');
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn(
+      '[Lumen Auth] JWT_SECRET is not configured. A temporary development secret was generated; sessions will expire when the server restarts. Set JWT_SECRET in backend/.env for stable local sessions.'
+    );
+  }
+} else if (!process.env.JWT_SECRET) {
+  console.error(
+    '[Lumen Auth] JWT_SECRET is not configured. Login and registration will remain unavailable until it is set.'
   );
-});
+}
+
+const app = express();
 
 // CORS configuration - Allow all origins dynamically with credentials support
 app.use(
@@ -109,6 +117,9 @@ app.use('/api/appeals', appealRoutes);
 
 // Content Quality & Duplicate Detection
 app.use('/api/content-quality', contentQualityRoutes);
+
+// AI writing assistance and article summarization
+app.use('/api/ai-writing', aiWritingRoutes);
 
 // AI Content Moderation
 app.use('/api/moderation', moderationRoutes);
@@ -246,17 +257,38 @@ const PORT = process.env.PORT || 5000;
 // ======================================================
 
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
-    console.log('\n=================================================');
-    console.log(`  🌿 Lumen CMS Server running on port ${PORT}`);
-    console.log(`  🔗 API Root: http://localhost:${PORT}/api/health`);
-    console.log(`  💬 Real-Time Chat & Socket.io Enabled`);
-    if (process.env.GEMINI_API_KEY) {
-      console.log(`  🤖 AI Moderation: Gemini API key loaded ✅`);
-    } else {
-      console.log(`  ⚠️  AI Moderation: No Gemini API key — rule-based fallback active`);
+  const startServer = async () => {
+    let databaseConnected = false;
+    try {
+      const connection = await connectDB();
+      databaseConnected = Boolean(connection && connection.connection.readyState === 1);
+    } catch {
+      // The database layer logs a redacted failure category; keep the API online for health checks.
     }
-    console.log('=================================================\n');
+
+    if (databaseConnected) {
+      console.log('[Lumen Server] Database readiness: connected.');
+    } else {
+      console.warn('[Lumen Server] Database readiness: unavailable; article write requests will return HTTP 503 until MongoDB is reachable.');
+    }
+
+    server.listen(PORT, () => {
+      console.log('\n=================================================');
+      console.log(`  🌿 Lumen CMS Server running on port ${PORT}`);
+      console.log(`  🔗 API Root: http://localhost:${PORT}/api/health`);
+      console.log(`  💬 Real-Time Chat & Socket.io Enabled`);
+      if (process.env.GEMINI_API_KEY) {
+        console.log('  🤖 Gemini AI: configured for moderation and writing assistance ✅');
+      } else {
+        console.log('  ⚠️  Gemini AI: no API key — moderation and writing fallbacks active');
+      }
+      console.log('=================================================\n');
+    });
+  };
+
+  startServer().catch((error) => {
+    console.error(`[Lumen Server] Startup failed (${error.name || 'Error'}).`);
+    process.exitCode = 1;
   });
 }
 

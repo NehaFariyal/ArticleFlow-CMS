@@ -17,6 +17,73 @@ const userStore = require('../models/userStore');
   return jwt.sign({ id: userId, role }, jwtSecret, { expiresIn });
 };
 
+const getPublicAuthError = (error, action) => {
+  if (error.code === 'AUTH_CONFIG_UNAVAILABLE') {
+    return {
+      status: 503,
+      message: 'Authentication is temporarily unavailable because server configuration is incomplete.',
+    };
+  }
+
+  if (error.code === 'DATABASE_UNAVAILABLE') {
+    return {
+      status: 503,
+      message: process.env.NODE_ENV === 'development'
+        ? error.message
+        : 'Registration is temporarily unavailable because the database is not ready. Please try again later.',
+    };
+  }
+
+  if (error.name === 'ValidationError') {
+    return { status: 400, message: error.message };
+  }
+
+  if (error.message === 'JWT_SECRET environment variable is required') {
+    return {
+      status: 503,
+      message: 'Authentication is temporarily unavailable because server configuration is incomplete.',
+    };
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    const detail = error.message.replace(/(mongodb(?:\+srv)?:\/\/)[^@\s]+@/gi, '$1<credentials>@');
+    return { status: 500, message: `${action} failed: ${detail}` };
+  }
+
+  return {
+    status: 500,
+    message: `An error occurred during ${action.toLowerCase()}. Please try again later.`,
+  };
+};
+
+const validateRegistrationStorage = () => {
+  if (!process.env.JWT_SECRET) {
+    const error = new Error('JWT_SECRET environment variable is required');
+    error.code = 'AUTH_CONFIG_UNAVAILABLE';
+    throw error;
+  }
+
+  const databaseConfigured = Boolean(process.env.MONGODB_URI || process.env.MONGO_URI);
+  if (
+    process.env.NODE_ENV !== 'test' &&
+    databaseConfigured &&
+    !userStore.isDBConnected()
+  ) {
+    const error = new Error('MongoDB is configured but not connected. Registration was stopped to protect account data.');
+    error.code = 'DATABASE_UNAVAILABLE';
+    throw error;
+  }
+  if (
+    process.env.NODE_ENV !== 'test' &&
+    !databaseConfigured &&
+    process.env.NODE_ENV === 'production'
+  ) {
+    const error = new Error('MongoDB must be configured before accounts can be registered.');
+    error.code = 'DATABASE_UNAVAILABLE';
+    throw error;
+  }
+};
+
 
 /**
  * @desc    Register a new user (Reader or Author)
@@ -25,10 +92,17 @@ const userStore = require('../models/userStore');
  */
 const register = async (req, res) => {
   try {
-    const { name, email, password, role, bio } = req.body;
+    const { name, email, password, role, bio } = req.body || {};
 
     // 1. Basic validation
-    if (!name || !email || !password) {
+    if (
+      typeof name !== 'string' ||
+      typeof email !== 'string' ||
+      typeof password !== 'string' ||
+      !name.trim() ||
+      !email.trim() ||
+      !password
+    ) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields: name, email, and password.',
@@ -51,6 +125,19 @@ const register = async (req, res) => {
       });
     }
 
+    if (typeof bio !== 'undefined' && typeof bio !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Bio must be text.',
+      });
+    }
+    if (typeof bio === 'string' && bio.trim().length > 500) {
+      return res.status(400).json({
+        success: false,
+        message: 'Bio cannot exceed 500 characters.',
+      });
+    }
+
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
@@ -68,6 +155,12 @@ const register = async (req, res) => {
     // 2. Enforce role restrictions: public registration cannot create admin accounts
     let assignedRole = 'reader';
     if (role) {
+      if (typeof role !== 'string') {
+        return res.status(400).json({
+          success: false,
+          message: 'Please select a valid account role.',
+        });
+      }
       const normalizedRole = role.toLowerCase().trim();
       if (normalizedRole === 'admin') {
         return res.status(403).json({
@@ -75,10 +168,16 @@ const register = async (req, res) => {
           message: 'Admin accounts cannot be created via public registration.',
         });
       }
-      if (['reader', 'author'].includes(normalizedRole)) {
-        assignedRole = normalizedRole;
+      if (!['reader', 'author'].includes(normalizedRole)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please select either the Reader or Author role.',
+        });
       }
+      assignedRole = normalizedRole;
     }
+
+    validateRegistrationStorage();
 
     // 3. Check for existing user with this email
     const existingUser = await userStore.findByEmail(normalizedEmail);
@@ -108,7 +207,9 @@ const register = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: 'Account registered successfully.',
+      message: userStore.isDBConnected()
+        ? 'Account registered successfully.'
+        : 'Account registered for this development session only. Configure MongoDB to save accounts permanently.',
       token,
       user: {
         id: userId,
@@ -127,9 +228,10 @@ const register = async (req, res) => {
         message: 'An account with this email address already exists. Please sign in instead.',
       });
     }
-    return res.status(500).json({
+    const publicError = getPublicAuthError(error, 'Registration');
+    return res.status(publicError.status).json({
       success: false,
-      message: 'An error occurred during registration. Please try again later.',
+      message: publicError.message,
     });
   }
 };
@@ -193,9 +295,10 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error('[Auth Login Error]:', error);
-    return res.status(500).json({
+    const publicError = getPublicAuthError(error, 'Sign in');
+    return res.status(publicError.status).json({
       success: false,
-      message: 'An error occurred during sign in. Please try again later.',
+      message: publicError.message,
     });
   }
 };

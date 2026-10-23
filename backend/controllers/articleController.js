@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Article = require('../models/Article');
 const User = require('../models/User');
+const connectDB = require('../config/db');
 const { notifyAuthorSubscribers, notifyAdminUsers, createNotification } = require('./notificationController');
 
 const getUserId = (req) => {
@@ -9,6 +10,21 @@ const getUserId = (req) => {
 
 const isArticleOwner = (article, userId) => {
   return article.author.toString() === userId.toString();
+};
+
+const sendDatabaseUnavailable = (error, res) => {
+  const connectionLost = mongoose.connection.readyState !== 1;
+  const bufferingTimedOut = /buffering timed out/i.test(error.message || '');
+  if (!connectionLost && !bufferingTimedOut) return false;
+
+  const category = error.dbCategory || connectDB.classifyMongoError(error);
+  console.error(`[Article Write] Database unavailable [${category}] (${error.name || 'Error'}).`);
+  return res.status(503).json({
+    success: false,
+    code: 'DATABASE_UNAVAILABLE',
+    category,
+    message: 'MongoDB became unavailable before the article was saved. No article was saved; restore the database connection and try again.',
+  });
 };
 
 // Create a new article
@@ -47,11 +63,14 @@ const createArticle = async (req, res) => {
       article: populatedArticle,
     });
   } catch (error) {
-    console.error('Create article error:', error);
+    if (sendDatabaseUnavailable(error, res)) return;
 
+    console.error(`[Article Write] Create failed (${error.name || 'Error'}).`);
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to create article.',
+      message: error.name === 'ValidationError'
+        ? error.message
+        : 'Failed to create article. Please check the submitted fields and try again.',
     });
   }
 };
@@ -298,11 +317,14 @@ const updateArticle = async (req, res) => {
       article: updatedArticle,
     });
   } catch (error) {
-    console.error('Update article error:', error);
+    if (sendDatabaseUnavailable(error, res)) return;
 
+    console.error(`[Article Write] Update failed (${error.name || 'Error'}).`);
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to update article.',
+      message: error.name === 'ValidationError'
+        ? error.message
+        : 'Failed to update article. Please try again.',
     });
   }
 };

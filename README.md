@@ -192,6 +192,43 @@ Depending on the features enabled, configuration may include database connection
 
 Do not commit `.env` files, passwords, API keys, JWT secrets, or database credentials to GitHub. Never share personal credentials with other team members.
 
+### AI writing assistance and summaries
+
+The article editor provides alternative titles, short summaries, tag ideas, readability tips, key takeaways, and a separate long-form summary. These authenticated endpoints use Gemini when configured and otherwise return clearly labeled rule-based or extractive suggestions.
+
+To enable Gemini:
+
+1. Open [Google AI Studio API keys](https://aistudio.google.com/apikey), sign in, and create or select a Google Cloud project.
+2. Create an API key for the Gemini API and copy it privately. Do not paste it into chat, source code, or frontend environment variables.
+3. From the project root, create the private environment file:
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+notepad backend\.env
+```
+
+Set `GEMINI_API_KEY` in `backend/.env` and save the file:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key
+# Optional; defaults to gemini-3.5-flash-lite
+GEMINI_MODEL=gemini-3.5-flash-lite
+```
+
+The key is only read by the backend and must not use a `VITE_` prefix or be placed in frontend files. `backend/.env` is excluded from Git. Restart the backend after changing the environment file; startup logs confirm only whether Gemini is configured, never the key itself. Without the key, the writing assistant and summaries remain available with an on-screen explanation that their results are rule-based rather than AI-generated.
+
+For persistent article storage, configure `MONGODB_URI` in `backend/.env` with your own MongoDB connection string. The server can start without MongoDB and includes limited in-memory demo fallbacks, but that data is temporary and is lost when the backend restarts. The stateless AI endpoints themselves do not require MongoDB. No database credentials are included in this project.
+
+Article create, edit, submit, publish, and other write requests now wait for a MongoDB connection and return an explicit `503` instead of buffering until timeout. To enable persistent saves, create a cluster in [MongoDB Atlas](https://www.mongodb.com/atlas/database), create a database user, allow your development IP under Network Access, and copy the application connection string using **Connect → Drivers**. Put the full private URI in `backend/.env` as `MONGODB_URI=<your-private-connection-string>` (or use the `MONGO_URI` alias), replace the username/password and hostname with the values from your Atlas account, and URL-encode reserved characters in the password. To preserve existing CMS data, the backend explicitly connects to the `content_management_system` database regardless of the URI path. Never leave a sample hostname such as `your_cluster_host`, commit, or share the connection string. The backend logs only a redacted failure category (for example, authentication, IP access, DNS/network, or unavailable cluster). If the database is unavailable, article writes return a clear `503` and do not claim the article was saved.
+
+For stable local authentication, also set `JWT_SECRET` in `backend/.env` to a random secret. Without it, non-production startup generates a temporary secret and warns that sessions will expire on restart. For example, generate a value in PowerShell with:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Copy that output into `backend/.env` as `JWT_SECRET=<generated-value>`. MongoDB must be configured for permanent accounts. If no database URI is provided in development, registration explicitly reports that accounts only last for the current backend session; if MongoDB is configured but disconnected, registration stops instead of claiming an account was saved.
+
 ### 4. Start the application
 
 From the project root, run:

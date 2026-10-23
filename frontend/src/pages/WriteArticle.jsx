@@ -4,6 +4,7 @@ import {
   articleAPI,
   quizAPI,
   contentQualityAPI,
+  aiWritingAPI,
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -18,6 +19,8 @@ import {
   CheckCircle2,
   Trash2,
   Sparkles,
+  FileText,
+  Loader2,
 } from 'lucide-react';
 
 const WriteArticle = () => {
@@ -57,6 +60,13 @@ const WriteArticle = () => {
 const [qualityLoading, setQualityLoading] = useState(false);
 const [qualityResult, setQualityResult] = useState(null);
 const [qualityError, setQualityError] = useState('');
+const [assistantLoading, setAssistantLoading] = useState('');
+const [assistantError, setAssistantError] = useState('');
+const [assistantErrorAction, setAssistantErrorAction] = useState('');
+const [assistantResults, setAssistantResults] = useState({});
+const [summaryLoading, setSummaryLoading] = useState(false);
+const [summaryError, setSummaryError] = useState('');
+const [articleSummary, setArticleSummary] = useState(null);
   useEffect(() => {
     if (isEditMode) {
       fetchArticle();
@@ -251,6 +261,84 @@ const [qualityError, setQualityError] = useState('');
     setQualityLoading(false);
   }
 };
+
+  const handleWritingAssist = async (action) => {
+    setAssistantError('');
+    setAssistantErrorAction('');
+    if (!content.trim()) {
+      setAssistantError('Add article content before requesting writing assistance.');
+      setAssistantErrorAction(action);
+      return;
+    }
+
+    setAssistantLoading(action);
+    try {
+      const response = await aiWritingAPI.assist({
+        action,
+        title: title.trim(),
+        category: category.trim(),
+        content: content.trim(),
+      });
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || 'Unable to get a writing suggestion.');
+      }
+      setAssistantResults((results) => ({
+        ...results,
+        [action]: {
+          value: response.data.value,
+          provider: response.data.provider,
+          message: response.data.message,
+        },
+      }));
+    } catch (error) {
+      console.error('[AI Writing Assistant Error]:', error);
+      setAssistantError(
+        error.response?.data?.message ||
+          error.message ||
+          'Unable to get a writing suggestion. Please try again.'
+      );
+      setAssistantErrorAction(action);
+    } finally {
+      setAssistantLoading('');
+    }
+  };
+
+  const handleSummarizeArticle = async () => {
+    setSummaryError('');
+    if (!content.trim()) {
+      setSummaryError('Add article content before requesting a summary.');
+      return;
+    }
+
+    setSummaryLoading(true);
+    try {
+      const response = await aiWritingAPI.summarize({ content: content.trim() });
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || 'Unable to summarize this article.');
+      }
+      setArticleSummary({
+        value: response.data.value,
+        provider: response.data.provider,
+        message: response.data.message,
+      });
+    } catch (error) {
+      console.error('[Article Summary Error]:', error);
+      setSummaryError(
+        error.response?.data?.message ||
+          error.message ||
+          'Unable to summarize this article. Please try again.'
+      );
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  const applySuggestedTag = (suggestedTag) => {
+    const normalizedTag = suggestedTag.trim();
+    if (normalizedTag && !tags.some((tag) => tag.toLowerCase() === normalizedTag.toLowerCase())) {
+      setTags((currentTags) => [...currentTags, normalizedTag]);
+    }
+  };
 
   const getArticleData = () => ({
     title: title.trim(),
@@ -532,6 +620,165 @@ const [qualityError, setQualityError] = useState('');
             <span>{content.trim() ? content.trim().split(/\s+/).length : 0} words</span>
           </div>
         </div>
+
+        {/* AI Writing Assistant */}
+        <section className="pt-6 border-t border-[#F5F2EB]" aria-labelledby="writing-assistant-title">
+          <div className="flex items-start gap-3 mb-4">
+            <Sparkles className="w-5 h-5 text-[#D97736] mt-0.5" />
+            <div>
+              <h3 id="writing-assistant-title" className="font-serif font-bold text-stone-900">
+                AI Writing Assistant
+              </h3>
+              <p className="text-xs text-stone-500 mt-1">
+                Get draft-based ideas for your title, short summary, tags, readability, and takeaways.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {[
+              ['titles', 'Alternative titles'],
+              ['summary', 'Short summary'],
+              ['tags', 'Relevant tags'],
+              ['readability', 'Readability tips'],
+              ['takeaways', 'Key takeaways'],
+            ].map(([action, label]) => (
+              <button
+                key={action}
+                type="button"
+                onClick={() => handleWritingAssist(action)}
+                disabled={Boolean(assistantLoading) || summaryLoading || isPendingReview}
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#F1EEE8] border border-[#E2DDD3] rounded-xl text-xs font-semibold text-stone-800 hover:bg-[#E7E2D9] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {assistantLoading === action
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : <Sparkles className="w-3.5 h-3.5 text-[#D97736]" />}
+                {assistantLoading === action ? 'Working...' : label}
+              </button>
+            ))}
+          </div>
+
+          {assistantError && (
+            <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-sm flex flex-wrap items-center justify-between gap-3" role="alert">
+              <span className="inline-flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {assistantError}
+              </span>
+              {assistantErrorAction && content.trim() && (
+                <button
+                  type="button"
+                  onClick={() => handleWritingAssist(assistantErrorAction)}
+                  disabled={Boolean(assistantLoading) || summaryLoading}
+                  className="underline font-semibold disabled:opacity-50"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          )}
+
+          {Object.entries(assistantResults).map(([action, result]) => (
+            <div key={action} className="mt-4 p-4 bg-[#FAF7F2] border border-[#EDE8DF] rounded-2xl">
+              <h4 className="text-sm font-bold text-stone-900 mb-2">
+                {{
+                  titles: 'Alternative titles',
+                  summary: 'Short summary',
+                  tags: 'Relevant tags',
+                  readability: 'Readability improvements',
+                  takeaways: 'Key takeaways',
+                }[action]}
+              </h4>
+              {Array.isArray(result.value) ? (
+                <ul className="space-y-2">
+                  {result.value.map((suggestion, index) => (
+                    <li key={`${action}-${index}`} className="flex items-start justify-between gap-3 text-sm text-stone-700">
+                      <span>{action === 'titles' ? `${index + 1}. ` : action === 'takeaways' ? '• ' : ''}{suggestion}</span>
+                      {action === 'titles' && (
+                        <button
+                          type="button"
+                          onClick={() => setTitle(suggestion)}
+                          disabled={isPendingReview}
+                          className="flex-shrink-0 text-xs font-semibold text-[#1A382B] underline disabled:opacity-50"
+                        >
+                          Use title
+                        </button>
+                      )}
+                      {action === 'tags' && (
+                        <button
+                          type="button"
+                          onClick={() => applySuggestedTag(suggestion)}
+                          disabled={isPendingReview || tags.some((tag) => tag.toLowerCase() === suggestion.toLowerCase())}
+                          className="flex-shrink-0 text-xs font-semibold text-[#1A382B] underline disabled:opacity-50"
+                        >
+                          {tags.some((tag) => tag.toLowerCase() === suggestion.toLowerCase()) ? 'Added' : 'Add tag'}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-stone-700 leading-relaxed">{result.value}</p>
+              )}
+              <p className="mt-3 text-xs text-stone-500">
+                {result.provider === 'gemini' ? 'Gemini' : 'Rule-based fallback'} · {result.message}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        {/* Separate long-form article summarizer */}
+        <section className="pt-6 border-t border-[#F5F2EB]" aria-labelledby="article-summarizer-title">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <FileText className="w-5 h-5 text-[#1A382B] mt-0.5" />
+              <div>
+                <h3 id="article-summarizer-title" className="font-serif font-bold text-stone-900">
+                  Long-form Article Summary
+                </h3>
+                <p className="text-xs text-stone-500 mt-1">
+                  Create a standalone summary of the full draft, especially useful for lengthy articles.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSummarizeArticle}
+              disabled={summaryLoading || Boolean(assistantLoading) || isPendingReview}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1A382B] hover:bg-[#11261D] text-white rounded-xl text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {summaryLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+              {summaryLoading ? 'Summarizing...' : articleSummary ? 'Regenerate summary' : 'Summarize article'}
+            </button>
+          </div>
+
+          {summaryError && (
+            <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-sm flex flex-wrap items-center justify-between gap-3" role="alert">
+              <span className="inline-flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                {summaryError}
+              </span>
+              {content.trim() && (
+                <button
+                  type="button"
+                  onClick={handleSummarizeArticle}
+                  disabled={summaryLoading || Boolean(assistantLoading)}
+                  className="underline font-semibold disabled:opacity-50"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          )}
+
+          {articleSummary && (
+            <div className="mt-4 p-4 bg-[#FAF7F2] border border-[#EDE8DF] rounded-2xl" aria-live="polite">
+              <p className="text-sm text-stone-700 leading-relaxed">{articleSummary.value}</p>
+              <p className="mt-3 text-xs text-stone-500">
+                {articleSummary.provider === 'gemini' ? 'Gemini' : 'Rule-based fallback'} · {articleSummary.message}
+              </p>
+            </div>
+          )}
+        </section>
 
         {/* Optional Video */}
         <div>
